@@ -1,0 +1,103 @@
+x-defaults: &defaults
+  environment:
+    - SD_WEBUI_CONFIG_PATH=/sdcpp-webui/config.json
+    - SD_WEBUI_PROMPTS_PATH=/sdcpp-webui/prompts.json
+  ports:
+    - "7860:7860"
+  user: "1000"
+  group_add:
+    - video # 44
+    - 132 # render
+  volumes:
+    - ./docker/.cache/:/.cache:rw
+    - ./docker/config.json:/sdcpp-webui/config.json:rw
+    - ./docker/prompts.json:/sdcpp-webui/prompts.json:rw
+    - ./docker/options_cache.json:/usr/local/src/options_cache.json:rw
+    - ./outputs:/usr/local/src/outputs:rw
+    - /mnt/tank/models:/usr/local/models:rw
+  devices:
+    - /dev/dri/renderD129:/dev/dri/renderD129
+    - /dev/kfd:/dev/kfd
+  shm_size: '8G'
+  ipc: 'host'
+  security_opt:
+    - seccomp:unconfined
+  ulimits:
+    core:
+      hard: 0
+      soft: 0
+
+
+services:
+  web-rocm:
+    <<: *defaults
+    build:
+      context: .
+      args:
+        ROCM_VERSION: "7.1.1"
+        SDCPP_VERSION: "rocm7.1-gfx1030"
+      dockerfile_inline: |
+        ARG ROCM_VERSION=7.0
+        ARG SDCPP_VERSION=rocm70
+        
+        FROM sdcpp:$${SDCPP_VERSION} AS sdcpp
+        FROM rocm/dev-ubuntu-24.04:$${ROCM_VERSION}-complete AS runtime
+       
+        RUN apt-get update && \
+          apt-get install -y python3-venv && \
+          apt-get clean
+        
+        VOLUME /usr/local/venv
+        RUN python3 -m venv --upgrade-deps /usr/local/venv
+        
+        COPY requirements.txt .
+        RUN /usr/local/venv/bin/pip install -r requirements.txt
+        
+        WORKDIR /usr/local/src
+        COPY . .
+        COPY --from=sdcpp /sd .
+
+        ENTRYPOINT [  "/usr/local/venv/bin/python3", \
+                      "sdcpp_webui.py", \
+                      "--listen", \
+                      "--darkmode" ]
+    image: sdcpp-webui:rocm7.1-gfx1030
+    ports:
+      - "7861:7860"
+    environment:
+      - HSA_OVERRIDE_GFX_VERSION=10.3.0 # rocm for rdna2
+      - LD_LIBRARY_PATH=/opt/rocm/lib/llvm/lib
+      - SD_WEBUI_CONFIG_PATH=/sdcpp-webui/config.json
+      - SD_WEBUI_PROMPTS_PATH=/sdcpp-webui/prompts.json
+
+  web-vulkan:
+    <<: *defaults
+    build:
+      context: .
+      args:
+        SDCPP_VERSION: "vulkan"
+      dockerfile_inline: |
+        ARG SDCPP_VERSION=vulkan
+        
+        FROM sdcpp:$${SDCPP_VERSION} AS sdcpp
+        FROM debian:trixie-slim AS runtime
+        
+        RUN apt-get update && \
+          apt-get install -y python3-venv mesa-vulkan-drivers vulkan-tools libgomp1 && \
+          apt-get clean
+        
+        VOLUME /usr/local/venv
+        RUN python3 -m venv --upgrade-deps /usr/local/venv
+        
+        COPY requirements.txt .
+        RUN /usr/local/venv/bin/pip install -r requirements.txt
+        
+        WORKDIR /usr/local/src
+        COPY . .
+        COPY --from=sdcpp /sd .
+        
+        ENTRYPOINT [  "/usr/local/venv/bin/python3", \
+                      "sdcpp_webui.py", \
+                      "--listen", \
+                      "--darkmode" ]
+    image: sdcpp-webui:vulkan
