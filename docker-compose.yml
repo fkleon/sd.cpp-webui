@@ -1,0 +1,56 @@
+services:
+  web:
+    build:
+      args:
+        ROCM_VERSION: "7.0"
+        SDCPP_VERSION: "pr-522-3e0ef279-3-ga580f4f-rocm-7.0"
+      dockerfile_inline: |
+        ARG ROCM_VERSION=7.0
+        ARG SDCPP_VERSION=rocm70
+        
+        FROM sdcpp:$${SDCPP_VERSION} AS sdcpp
+        FROM rocm/dev-ubuntu-24.04:$${ROCM_VERSION}-complete AS runtime
+        
+        RUN apt-get update && apt-get install -y python3-venv
+        
+        VOLUME /usr/local/venv
+        RUN python3 -m venv --upgrade-deps /usr/local/venv
+        
+        COPY requirements.txt .
+        RUN /usr/local/venv/bin/pip install -r requirements.txt
+        
+        WORKDIR /usr/local/src
+        COPY --from=sdcpp /sd /usr/local/bin/
+        
+        ENTRYPOINT [  "/usr/local/venv/bin/python3", \
+                      "sdcpp_webui.py", \
+                      "--listen", \
+                      "--darkmode" ]
+    image: sdcpp-webui:latest
+    ports:
+      - "7865:7860"
+    environment:
+      - HSA_OVERRIDE_GFX_VERSION=10.3.0 # rocm for rdna2
+      - LD_LIBRARY_PATH=/opt/rocm/lib/llvm/lib
+    user: "1000"
+    group_add:
+      - video # 44
+      - 132 # render
+    volumes:
+      - .:/usr/local/src:rw
+      - venv:/usr/local/venv:rw
+      - /mnt/tank/models:/usr/local/models:ro
+    devices:
+      - /dev/dri/renderD129:/dev/dri/renderD129
+      - /dev/kfd:/dev/kfd
+    shm_size: '8G'
+    ipc: 'host'
+    security_opt:
+      - seccomp:unconfined
+    ulimits:
+      core:
+        hard: 0
+        soft: 0
+
+volumes:
+  venv:
