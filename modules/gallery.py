@@ -3,6 +3,7 @@
 import os
 import re
 import json
+from datetime import datetime
 from typing import List, Tuple, Dict, Any, Optional
 from PIL import Image
 
@@ -423,8 +424,17 @@ class GalleryManager:
             raw_text or ""
         )
 
-
 def get_next_img(subctrl: int) -> str:
+    file_name_type = config.get('def_file_name', 'seq')
+    match file_name_type:
+        case 'date':
+            return get_next_img_date()
+        case 'seq':
+            return get_next_img_seq(subctrl)
+        case _:
+            return get_next_img_seq(subctrl)
+
+def get_next_img_seq(subctrl: int) -> str:
     """Creates a new, sequential image name (e.g., '123.png')."""
     dir_map = {
         0: 'txt2img_dir',
@@ -450,3 +460,9 @@ def get_next_img(subctrl: int) -> str:
         next_number = 1
 
     return f"{next_number}.png"
+
+def get_next_img_date(ref: datetime = None, format = '%Y-%m-%d_%H-%M-%S') -> str:
+    """Creates a new, date-based image name (e.g., '2023-10-05_14-30-00.png')."""
+    if not ref:
+        ref = datetime.now()
+    return f"{ref.strftime(format)}.png"
