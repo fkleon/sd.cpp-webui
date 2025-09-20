@@ -1,0 +1,10 @@
+venv/
+outputs/
+models/
+docker/
+
+.git/
+*.pyc
+__pycache__/
+.cache/
+*.swp
