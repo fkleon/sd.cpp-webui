@@ -2,6 +2,7 @@
 
 import gradio as gr
 
+from modules.shared_instance import config
 from .constants import PREVIEW
 
 
@@ -13,7 +14,7 @@ def create_experimental_ui():
         preview_mode = gr.Dropdown(
             label="Preview mode (WIP: PR #522)",
             choices=PREVIEW,
-            value="none"
+            value=config.get('def_preview')
         )
         preview_interval = gr.Number(
             label="Preview interval (PR #522)",
