@@ -31,6 +31,7 @@ DEFAULT_SETTINGS = {
     'def_height': 512,
     'def_cfg': 7.0,
     'def_predict': "Default",
+    'def_preview': "none",
     'def_flash_attn': False,
     'def_diffusion_conv_direct': False,
     'def_vae_conv_direct': False
