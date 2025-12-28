@@ -55,7 +55,7 @@ services:
         
         WORKDIR /usr/local/src
         COPY . .
-        COPY --from=sdcpp /sd .
+        COPY --from=sdcpp /sd-cli .
 
         ENTRYPOINT [  "/usr/local/venv/bin/python3", \
                       "sdcpp_webui.py", \
@@ -94,7 +94,7 @@ services:
         
         WORKDIR /usr/local/src
         COPY . .
-        COPY --from=sdcpp /sd .
+        COPY --from=sdcpp /sd-cli .
         
         ENTRYPOINT [  "/usr/local/venv/bin/python3", \
                       "sdcpp_webui.py", \
