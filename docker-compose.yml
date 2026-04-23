@@ -75,11 +75,11 @@ services:
     build:
       context: .
       args:
-        SDCPP_VERSION: "vulkan"
+        SDCPP_VERSION: "master-vulkan"
       dockerfile_inline: |
-        ARG SDCPP_VERSION=vulkan
+        ARG SDCPP_VERSION=master-vulkan
         
-        FROM sdcpp:$${SDCPP_VERSION} AS sdcpp
+        FROM ghcr.io/leejet/stable-diffusion.cpp:$${SDCPP_VERSION} AS sdcpp
         FROM debian:trixie-slim AS runtime
         
         RUN apt-get update && \
