@@ -1,14 +1,20 @@
+from modules.utils.preset_manager import PresetManager
+from modules.utils.prompt_manager import PromptManager
 import pytest
 import os
 
 from modules.config import ConfigManager
 
+
 @pytest.fixture(autouse=True, scope="session")
 def app_root(tmp_path_factory):
     """Set up a temporary application root with config files and output directories."""
     tmp_path = tmp_path_factory.mktemp("sdcpp-webui")
-    config_path = tmp_path / "config.json"
-    prompts_path = tmp_path / "prompts.json"
+    userdata_path = tmp_path / "user_data"
+    userdata_path.mkdir()
+    config_path = userdata_path / "config.json"
+    prompts_path = userdata_path / "prompts.json"
+    presets_path = userdata_path / "presets.json"
 
     # output directories
     txt2img_dir = tmp_path / "txt2img"
@@ -17,20 +23,29 @@ def app_root(tmp_path_factory):
     img2img_dir.mkdir()
 
     # Initialize default config files
-    config = ConfigManager(config_path, prompts_path)
-    config.update_settings({
-        "txt2img_dir": str(txt2img_dir),
-        "img2img_dir": str(img2img_dir),
-    })
+    config = ConfigManager(config_path)
+    config.update_settings(
+        {
+            "txt2img_dir": str(txt2img_dir),
+            "img2img_dir": str(img2img_dir),
+        }
+    )
+
+    # Initialize default prompts file
+    _ = PromptManager(prompts_path)
+
+    # Initialize default presets file
+    _ = PresetManager(presets_path)
 
     # Export environment variables for the application to use
-    os.environ['SD_WEBUI_CONFIG_PATH'] = str(config_path)
-    os.environ['SD_WEBUI_PROMPTS_PATH'] = str(prompts_path)
+    os.environ["SD_WEBUI_CONFIG_PATH"] = str(config_path)
+    os.environ["SD_WEBUI_PROMPTS_PATH"] = str(prompts_path)
+    os.environ["SD_WEBUI_PRESETS_PATH"] = str(presets_path)
 
     yield tmp_path
 
-    del os.environ['SD_WEBUI_CONFIG_PATH']
-    del os.environ['SD_WEBUI_PROMPTS_PATH']
+    del os.environ["SD_WEBUI_CONFIG_PATH"]
+    del os.environ["SD_WEBUI_PROMPTS_PATH"]
 
 
 @pytest.fixture(autouse=True)
