@@ -6,10 +6,12 @@ FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
 FROM sdcpp:${SDCPP_VERSION} AS sdcpp
 FROM rocm/dev-ubuntu-24.04:${ROCM_VERSION}-complete AS runtime
 
+# Dependencies
 RUN apt-get update && \
     apt-get install -y python3-venv && \
     apt-get clean
 
+# Python webapp
 COPY --from=uv /uv /uvx /bin/
 
 VOLUME /usr/local/venv
@@ -24,10 +26,12 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 WORKDIR /usr/local/src
 COPY . .
-COPY --from=sdcpp /sd-cli .
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --active --locked
+
+# sdcpp binaries
+COPY --from=sdcpp /sd-cli /sd-server /bin/
 
 ENTRYPOINT [  "/usr/local/venv/bin/python3", \
                 "sdcpp_webui.py", \
