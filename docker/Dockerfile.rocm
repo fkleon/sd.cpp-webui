@@ -1,0 +1,24 @@
+ARG ROCM_VERSION=7.0
+ARG SDCPP_VERSION=rocm70
+
+FROM sdcpp:${SDCPP_VERSION} AS sdcpp
+FROM rocm/dev-ubuntu-24.04:${ROCM_VERSION}-complete AS runtime
+
+RUN apt-get update && \
+    apt-get install -y python3-venv && \
+    apt-get clean
+
+VOLUME /usr/local/venv
+RUN python3 -m venv --upgrade-deps /usr/local/venv
+
+COPY requirements.txt .
+RUN /usr/local/venv/bin/pip install -r requirements.txt
+
+WORKDIR /usr/local/src
+COPY . .
+COPY --from=sdcpp /sd-cli .
+
+ENTRYPOINT [  "/usr/local/venv/bin/python3", \
+                "sdcpp_webui.py", \
+                "--listen", \
+                "--darkmode" ]

@@ -33,34 +33,10 @@ services:
     <<: *defaults
     build:
       context: .
+      dockerfile: ./docker/Dockerfile.rocm
       args:
         ROCM_VERSION: "7.1.1"
         SDCPP_VERSION: "rocm7.1-gfx1030"
-      dockerfile_inline: |
-        ARG ROCM_VERSION=7.0
-        ARG SDCPP_VERSION=rocm70
-        
-        FROM sdcpp:$${SDCPP_VERSION} AS sdcpp
-        FROM rocm/dev-ubuntu-24.04:$${ROCM_VERSION}-complete AS runtime
-       
-        RUN apt-get update && \
-          apt-get install -y python3-venv && \
-          apt-get clean
-        
-        VOLUME /usr/local/venv
-        RUN python3 -m venv --upgrade-deps /usr/local/venv
-        
-        COPY requirements.txt .
-        RUN /usr/local/venv/bin/pip install -r requirements.txt
-        
-        WORKDIR /usr/local/src
-        COPY . .
-        COPY --from=sdcpp /sd-cli .
-
-        ENTRYPOINT [  "/usr/local/venv/bin/python3", \
-                      "sdcpp_webui.py", \
-                      "--listen", \
-                      "--darkmode" ]
     image: sdcpp-webui:rocm7.1-gfx1030
     ports:
       - "7861:7860"
@@ -74,30 +50,7 @@ services:
     <<: *defaults
     build:
       context: .
+      dockerfile: ./docker/Dockerfile.vulkan
       args:
         SDCPP_VERSION: "master-vulkan"
-      dockerfile_inline: |
-        ARG SDCPP_VERSION=master-vulkan
-        
-        FROM ghcr.io/leejet/stable-diffusion.cpp:$${SDCPP_VERSION} AS sdcpp
-        FROM debian:trixie-slim AS runtime
-        
-        RUN apt-get update && \
-          apt-get install -y python3-venv mesa-vulkan-drivers vulkan-tools libgomp1 && \
-          apt-get clean
-        
-        VOLUME /usr/local/venv
-        RUN python3 -m venv --upgrade-deps /usr/local/venv
-        
-        COPY requirements.txt .
-        RUN /usr/local/venv/bin/pip install -r requirements.txt
-        
-        WORKDIR /usr/local/src
-        COPY . .
-        COPY --from=sdcpp /sd-cli .
-        
-        ENTRYPOINT [  "/usr/local/venv/bin/python3", \
-                      "sdcpp_webui.py", \
-                      "--listen", \
-                      "--darkmode" ]
     image: sdcpp-webui:vulkan
