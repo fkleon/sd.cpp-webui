@@ -1,6 +1,8 @@
 ARG ROCM_VERSION=7.0
 ARG SDCPP_VERSION=rocm70
+ARG UV_VERSION=0.11
 
+FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
 FROM sdcpp:${SDCPP_VERSION} AS sdcpp
 FROM rocm/dev-ubuntu-24.04:${ROCM_VERSION}-complete AS runtime
 
@@ -8,15 +10,24 @@ RUN apt-get update && \
     apt-get install -y python3-venv && \
     apt-get clean
 
+COPY --from=uv /uv /uvx /bin/
+
 VOLUME /usr/local/venv
-RUN python3 -m venv --upgrade-deps /usr/local/venv
+RUN uv venv /usr/local/venv
+ENV VIRTUAL_ENV=/usr/local/venv
 
 COPY requirements.txt .
-RUN /usr/local/venv/bin/pip install -r requirements.txt
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --active --compile-bytecode --no-install-project --link-mode=copy
 
 WORKDIR /usr/local/src
 COPY . .
 COPY --from=sdcpp /sd-cli .
+
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --active --locked
 
 ENTRYPOINT [  "/usr/local/venv/bin/python3", \
                 "sdcpp_webui.py", \
