@@ -29,7 +29,7 @@ class ServerState:
         self.seed = ""
 
 
-migrate_legacy_configs()
+# migrate_legacy_configs()
 
 config = ConfigManager()
 
