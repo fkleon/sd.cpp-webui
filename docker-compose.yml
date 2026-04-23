@@ -2,6 +2,7 @@ x-defaults: &defaults
   environment:
     - SD_WEBUI_CONFIG_PATH=/sdcpp-webui/config.json
     - SD_WEBUI_PROMPTS_PATH=/sdcpp-webui/prompts.json
+    - SD_WEBUI_PRESETS_PATH=/sdcpp-webui/presets.json
   ports:
     - "7860:7860"
   user: "1000"
@@ -12,6 +13,7 @@ x-defaults: &defaults
     - ./docker/.cache/:/.cache:rw
     - ./docker/config.json:/sdcpp-webui/config.json:rw
     - ./docker/prompts.json:/sdcpp-webui/prompts.json:rw
+    - ./docker/presets.json:/sdcpp-webui/presets.json:rw
     - ./docker/options_cache.json:/usr/local/src/options_cache.json:rw
     - ./outputs:/usr/local/src/outputs:rw
     - /mnt/tank/models:/usr/local/models:rw
