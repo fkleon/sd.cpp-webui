@@ -24,6 +24,7 @@ class SubprocessManager:
         Generates raw strings from the subprocess stdout,
         breaking at line endings or progress updates."""
         buffer = bytearray()
+        assert self.process is not None and self.process.stdout is not None
         for byte in iter(lambda: self.process.stdout.read(1), b""):
             buffer.extend(byte)
 

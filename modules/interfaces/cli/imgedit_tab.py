@@ -39,7 +39,7 @@ from modules.utils.ui_events import (
 
 
 with gr.Blocks() as imgedit_block:
-    inputs_map = {}
+    inputs_map: dict[str, gr.components.Component] = {}
     diffusion_mode = gr.Number(value=1, visible=False)
     # Directory Textboxes
     taesd_dir_txt = gr.Textbox(value=config.get("taesd_dir"), visible=False)
@@ -180,8 +180,8 @@ with gr.Blocks() as imgedit_block:
                     img_final = gr.Gallery(
                         label="Generated images",
                         show_label=False,
-                        columns=[3],
-                        rows=[1],
+                        columns=3,
+                        rows=1,
                         object_fit="contain",
                         height="auto",
                     )

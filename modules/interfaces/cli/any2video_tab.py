@@ -39,10 +39,10 @@ from modules.utils.ui_events import (
 # from modules.ui.experimental import create_experimental_ui
 
 
-any2video_params = {}
+any2video_params: dict[str, gr.components.Component] = {}
 
 with gr.Blocks() as any2video_block:
-    inputs_map = {}
+    inputs_map: dict[str, gr.components.Component] = {}
     # Directory Textboxes
     emb_dir_txt = gr.Textbox(value=config.get("emb_dir"), visible=False)
     lora_dir_txt = gr.Textbox(value=config.get("lora_dir"), visible=False)
@@ -247,8 +247,8 @@ with gr.Blocks() as any2video_block:
                     video_final = gr.Gallery(
                         label="Generated videos",
                         show_label=False,
-                        columns=[3],
-                        rows=[1],
+                        columns=3,
+                        rows=1,
                         object_fit="contain",
                         height="auto",
                     )

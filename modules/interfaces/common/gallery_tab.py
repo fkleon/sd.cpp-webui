@@ -13,17 +13,17 @@ gallery_manager = GalleryManager(
     config.get("any2video_dir"),
     config.get("upscale_dir"),
 )
-info_params = {}
+info_params: dict[str, gr.components.Component] = {}
 
 
 with gr.Blocks() as gallery_block:
     # Controls
-    txt2img_ctrl = gr.Textbox(value=0, visible=False)
-    img2img_ctrl = gr.Textbox(value=1, visible=False)
-    imgedit_ctrl = gr.Textbox(value=2, visible=False)
-    any2video_ctrl = gr.Textbox(value=3, visible=False)
-    upscl_ctrl = gr.Textbox(value=4, visible=False)
-    def_page = gr.Textbox(value=1, visible=False)
+    txt2img_ctrl = gr.Textbox(value="0", visible=False)
+    img2img_ctrl = gr.Textbox(value="1", visible=False)
+    imgedit_ctrl = gr.Textbox(value="2", visible=False)
+    any2video_ctrl = gr.Textbox(value="3", visible=False)
+    upscl_ctrl = gr.Textbox(value="4", visible=False)
+    def_page = gr.Textbox(value="1", visible=False)
 
     # Title
     gallery_title = gr.Markdown("# Gallery")
@@ -53,8 +53,8 @@ with gr.Blocks() as gallery_block:
             # Gallery Display
             gallery = gr.Gallery(
                 label="txt2img",
-                columns=[4],
-                rows=[4],
+                columns=4,
+                rows=4,
                 object_fit="contain",
                 height="auto",
                 fit_columns=False,

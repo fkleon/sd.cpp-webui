@@ -2,7 +2,7 @@
 
 import os
 from enum import IntEnum
-from typing import Any
+from typing import Any, cast
 
 from PIL import Image
 
@@ -30,7 +30,10 @@ def process_editor_mask(mask_input: Any) -> Image.Image | None:
             try:
                 layer_img = Image.open(layer_path).convert("RGBA")
                 # Check if the user actually drew anything (alpha channel > 0)
-                max_alpha = layer_img.getextrema()[3][1]
+                alpha_extrema = cast(
+                    "tuple[int, int]", layer_img.split()[3].getextrema()
+                )
+                max_alpha = alpha_extrema[1]
 
                 if max_alpha > 0:
                     mask_img = Image.new("RGB", layer_img.size, "black")

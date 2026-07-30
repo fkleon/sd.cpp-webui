@@ -340,4 +340,6 @@ with gr.Blocks() as options_block:
             f"Missing refresh output component(s): {missing_refresh_outputs}"
         )
 
+    refresh_outputs = [c for c in refresh_outputs if c is not None]
+
     refresh_opt.click(refresh_all_options, inputs=[], outputs=refresh_outputs)

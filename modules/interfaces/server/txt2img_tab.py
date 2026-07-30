@@ -39,12 +39,12 @@ from modules.utils.ui_events import (
 # from modules.ui.experimental import create_experimental_ui
 
 
-txt2img_server_params = {}
+txt2img_server_params: dict[str, gr.components.Component] = {}
 server_process = None
 
 
 with gr.Blocks() as txt2img_server_block:
-    inputs_map = {}
+    inputs_map: dict[str, gr.components.Component] = {}
 
     # Title
     txt2img_title = gr.Markdown("# Text to Image")
@@ -201,8 +201,8 @@ with gr.Blocks() as txt2img_server_block:
                 img_final = gr.Gallery(
                     label="Generated images",
                     show_label=False,
-                    columns=[3],
-                    rows=[1],
+                    columns=3,
+                    rows=1,
                     object_fit="contain",
                     height="auto",
                 )

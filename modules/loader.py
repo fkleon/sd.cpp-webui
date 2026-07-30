@@ -57,7 +57,7 @@ def get_models(models_folder: str) -> list[str]:
         return []
 
 
-def reload_models(models_folder: str) -> gr.Dropdown:
+def reload_models(models_folder: str) -> dict:
     """
     Creates a Gradio update object to refresh a model dropdown.
 
@@ -65,7 +65,7 @@ def reload_models(models_folder: str) -> gr.Dropdown:
         models_folder (str): The directory containing the models to list.
 
     Returns:
-        gr.Dropdown: A Gradio update object with the new list of models.
+        dict: A Gradio update object with the new list of models.
     """
     return gr.update(choices=get_models(models_folder))
 
@@ -115,7 +115,7 @@ def get_loras() -> list[str]:
     return []
 
 
-def model_choice(model_type: str) -> gr.Textbox:
+def model_choice(model_type: str) -> dict:
     """
     Creates a Gradio update object to set the value of a Textbox
     to the directory of the selected model type.
@@ -124,7 +124,7 @@ def model_choice(model_type: str) -> gr.Textbox:
         model_type (str): The type of model selected.
 
     Returns:
-        gr.Textbox: A Gradio update object with the corresponding
+        dict: A Gradio update object with the corresponding
                     directory path.
     """
     # Get the directory from the model_map based on the model_type

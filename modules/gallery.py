@@ -87,7 +87,7 @@ class GalleryManager:
         ctrl_inp: int | None = None,
         sort_inp: str | None = None,
         selected_index: int | None = None,
-    ) -> tuple[gr.update, int]:
+    ) -> tuple[gr.Gallery, int]:
         """Reloads the gallery block to a specific page."""
 
         if sort_inp is not None:
@@ -138,7 +138,7 @@ class GalleryManager:
             self.page_num,
         )
 
-    def _navigate_page(self, direction: int) -> tuple[gr.update, int]:
+    def _navigate_page(self, direction: int) -> tuple[gr.Gallery, int]:
         """Helper for next/prev/last page navigation."""
         files = self._get_sorted_files()
         total_items = len(files)
@@ -229,8 +229,8 @@ class GalleryManager:
             print(f"Failed to read metadata for {self.current_media_path}: {e}")
 
         params = extract_params_from_text(raw_text) if raw_text else {}
-        is_avi = self.current_media_path and self.current_media_path.lower().endswith(
-            ".avi"
+        is_avi = bool(
+            self.current_media_path and self.current_media_path.lower().endswith(".avi")
         )
         ffmpeg_available = shutil.which("ffmpeg") is not None
 
@@ -251,7 +251,7 @@ class GalleryManager:
             btn_update,
         )
 
-    def convert_to_mp4(self) -> tuple[gr.update, int]:
+    def convert_to_mp4(self) -> tuple[gr.Gallery, int]:
         """Converts the currently selected .avi file to an .mp4 file."""
         if not self.current_media_path or not self.current_media_path.lower().endswith(
             ".avi"
@@ -377,8 +377,8 @@ class GalleryManager:
 
         width, height = size_extractor(self.current_media_path)
 
-        is_avi = self.current_media_path and self.current_media_path.lower().endswith(
-            ".avi"
+        is_avi = bool(
+            self.current_media_path and self.current_media_path.lower().endswith(".avi")
         )
         ffmpeg_available = shutil.which("ffmpeg") is not None
         btn_update = gr.update(visible=is_avi, interactive=ffmpeg_available)

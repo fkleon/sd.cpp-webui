@@ -379,7 +379,7 @@ class ImageGenerationRunner(CommandRunner):
         # Filter out any keys that have a None value before returning
         return {k: v for k, v in options.items() if v is not None}
 
-    def build_command(self, output_dir_key: str, subctrl_id: int):
+    def _build_common_command(self, output_dir_key: str, subctrl_id: int):
         """Builds the common command for image generation."""
         self._resolve_paths()
         self._set_output_path(output_dir_key, subctrl_id, "png")
@@ -602,14 +602,14 @@ class Txt2ImgRunner(ImageGenerationRunner):
     """Builds the txt2img command."""
 
     def build_command(self):
-        super().build_command(output_dir_key="txt2img_dir", subctrl_id=0)
+        super()._build_common_command(output_dir_key="txt2img_dir", subctrl_id=0)
 
 
 class Img2ImgRunner(ImageGenerationRunner):
     """Builds the img2img command."""
 
     def build_command(self):
-        super().build_command(output_dir_key="img2img_dir", subctrl_id=1)
+        super()._build_common_command(output_dir_key="img2img_dir", subctrl_id=1)
 
         # Add img2img specific arguments
         self.command.extend(
@@ -646,7 +646,7 @@ class ImgEditRunner(ImageGenerationRunner):
     """Builds the image editing (instruct) command."""
 
     def build_command(self):
-        super().build_command(output_dir_key="imgedit_dir", subctrl_id=2)
+        super()._build_common_command(output_dir_key="imgedit_dir", subctrl_id=2)
 
         ref_imgs = self._get_param("in_ref_img")
 
@@ -935,6 +935,14 @@ def convert(params: dict):
     in_color = params.get("in_color", True)
     in_verbose = params.get("in_verbose", False)
 
+    if not in_orig_model or not in_model_dir:
+        raise ValueError(
+            "Model conversion requires both 'in_orig_model' and 'in_model_dir'."
+        )
+
+    if not in_quant_type:
+        raise ValueError("Model conversion requires 'in_quant_type'.")
+
     exe_dir = os.path.dirname(os.path.abspath(SD_CLI))
 
     orig_model_path = os.path.relpath(
@@ -1000,6 +1008,7 @@ def convert(params: dict):
         ) as process:
             subprocess_manager.process = process
 
+            assert process.stdout is not None
             for output_line in process.stdout:
                 output_line = output_line.rstrip()
 

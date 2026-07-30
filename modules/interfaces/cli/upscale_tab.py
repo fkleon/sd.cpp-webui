@@ -114,8 +114,8 @@ with gr.Blocks() as upscale_block:
                 img_final = gr.Gallery(
                     label="Generated images",
                     show_label=False,
-                    columns=[3],
-                    rows=[1],
+                    columns=3,
+                    rows=1,
                     object_fit="contain",
                     height="auto",
                     interactive=False,

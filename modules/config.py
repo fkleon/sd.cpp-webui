@@ -120,7 +120,7 @@ class ConfigManager:
         "def_llm": "txt_enc_dir",
     }
 
-    def __init__(self, config_path: str = None):
+    def __init__(self, config_path: str | None = None):
         self.config_path = os.getenv(
             "SD_WEBUI_CONFIG_PATH", config_path or DEFAULT_CONFIG_PATH
         )

@@ -201,7 +201,9 @@ def create_img_model_sel_ui():
     """Create the image model selection UI."""
     initial_mode = _get_initial_diffusion_mode()
     diffusion_mode = gr.Number(value=initial_mode, visible=False)
-    model_inputs = {"in_diffusion_mode": diffusion_mode}
+    model_inputs: dict[str, gr.components.Component] = {
+        "in_diffusion_mode": diffusion_mode
+    }
 
     initial_tab = "unet" if initial_mode == 1 else "checkpoint"
 

@@ -178,7 +178,7 @@ class ApiTaskRunner:
             "in_scheduler": ("scheduler", str, None),
         }
 
-        extra_args = {}
+        extra_args: dict[str, Any] = {}
         for p_key, (a_key, cast_type, cond_key) in mapping.items():
             if cond_key and not self._get_param(cond_key, False):
                 continue
@@ -195,7 +195,7 @@ class ApiTaskRunner:
             else ""
         )
 
-    def _build_payload(self) -> dict:
+    def _build_payload(self) -> dict | tuple:
         """Constructs the JSON payload for sdapi endpoints."""
         raw_pprompt = self._get_param("in_pprompt", "")
         raw_nprompt = self._get_param("in_nprompt", "")
@@ -312,6 +312,7 @@ class Img2ImgApiRunner(ApiTaskRunner):
 
     def _build_payload(self) -> dict:
         payload = super()._build_payload()
+        assert isinstance(payload, dict)
         init_img = self._get_param("in_img_inp") or self._get_param(
             "in_first_frame_inp"
         )

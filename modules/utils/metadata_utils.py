@@ -166,7 +166,7 @@ def parse_a1111_text(text_data: str) -> dict[str, Any]:
     Parses A1111-style text metadata, now separating sampler and scheduler
     based on the first space.
     """
-    params = {}
+    params: dict[str, Any] = {}
 
     patterns = {
         "pprompt": (

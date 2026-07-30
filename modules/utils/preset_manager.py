@@ -12,7 +12,11 @@ DEFAULT_PRESETS_PATH = os.path.join("defaults", "default_presets.json")
 class PresetManager:
     """Handles loading, saving and managing user-defined generation presets."""
 
-    def __init__(self, user_preset_path: str = None, default_preset_path: str = None):
+    def __init__(
+        self,
+        user_preset_path: str | None = None,
+        default_preset_path: str | None = None,
+    ):
         self.user_presets_path = os.getenv(
             "SD_WEBUI_PRESETS_PATH", user_preset_path or USER_PRESETS_PATH
         )

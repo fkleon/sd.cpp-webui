@@ -5,6 +5,7 @@ import json
 import os
 import sys
 import warnings
+from typing import Any, Callable
 
 import gradio as gr
 
@@ -76,7 +77,7 @@ config = ConfigManager()
 theme = config.get("def_theme")
 
 
-def create_copy_fn(tab_id: str, fields: list = None) -> callable:
+def create_copy_fn(tab_id: str, fields: list | None = None) -> Callable:
     """
     Creates a function that switches to a specific tab
     and passes through its arguments.
@@ -185,7 +186,7 @@ def load_credentials(filepath: str = "credentials.json"):
 
 def build_launch_args(listen: bool, autostart: bool, credentials: bool) -> dict:
 
-    launch_args = {}
+    launch_args: dict[str, Any] = {}
 
     if listen:
         launch_args["server_name"] = "0.0.0.0"

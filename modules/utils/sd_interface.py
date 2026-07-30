@@ -19,6 +19,8 @@ def exe_name(mode="cli"):
         candidates = ["sd-server"]
     elif mode == "cli":
         candidates = ["sd-cli", "sd"]
+    else:
+        raise ValueError(f"Unknown mode '{mode}'. Expected 'cli' or 'server'.")
 
     if os.name == "nt":
         candidates = [f"{c}.exe" for c in candidates]
@@ -96,8 +98,8 @@ class SDOptionsCache:
         Initializes the SDOptionsCache and prepares the cache.
         """
         try:
-            self.SD_PATH = exe_name(mode=mode)
-            self.SD = os.path.basename(self.SD_PATH)
+            self.SD_PATH: str | None = exe_name(mode=mode)
+            self.SD: str | None = os.path.basename(self.SD_PATH)
         except RuntimeError as e:
             print(f"SDOptionsCache Initialization Error: {e}")
             self.SD_PATH = None

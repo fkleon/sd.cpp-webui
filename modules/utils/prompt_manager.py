@@ -10,7 +10,7 @@ DEFAULT_PROMPTS_PATH = os.path.join("user_data", "prompts.json")
 class PromptManager:
     """Handles loading, saving and managing user-defined prompts."""
 
-    def __init__(self, prompt_path: str = None):
+    def __init__(self, prompt_path: str | None = None):
         self.prompts_path = os.getenv(
             "SD_WEBUI_PROMPTS_PATH", prompt_path or DEFAULT_PROMPTS_PATH
         )
