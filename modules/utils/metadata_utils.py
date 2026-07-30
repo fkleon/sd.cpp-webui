@@ -97,6 +97,7 @@ def parse_jpg_metadata(img_path: str) -> str | None:
     """Extracts UserComment EXIF data from a JPG file."""
     try:
         with Image.open(img_path) as img:
+            # pyrefly: ignore [missing-attribute]
             exif_data = img._getexif()
             if exif_data:
                 exif = exif_data.get(37510)  # 37510 = UserComment tag
