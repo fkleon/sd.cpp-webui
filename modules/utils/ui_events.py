@@ -121,16 +121,12 @@ def apply_lora(lora_model, lora_strength, lora_prompt_switch, pprompt, nprompt):
     if lora_model:
         lora_model = os.path.splitext(lora_model)[0]
         lora_string = "<lora:" + lora_model + ":" + str(lora_strength) + ">"
-        n_lora_string = "<lora:" + lora_model + ":-" + str(lora_strength) + ">"
 
         if lora_prompt_switch == "Positive":
             pprompt = "".join([pprompt, lora_string])
 
         elif lora_prompt_switch == "Negative":
-            if nprompt is True:
-                nprompt = "".join([nprompt, lora_string])
-            elif nprompt.visible is False:
-                pprompt = "".join([pprompt, n_lora_string])
+            nprompt = "".join([nprompt, lora_string])
 
     return (pprompt, nprompt)
 
