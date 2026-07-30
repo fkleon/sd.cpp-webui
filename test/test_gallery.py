@@ -1,4 +1,8 @@
-def test_get_next_media_seq():
+def test_get_next_media_seq(app_root, mocker) -> None:
+
+    config = mocker.patch("modules.shared_instance.config")
+    config.get.return_value = app_root / "img2img"
+
     from modules.gallery import get_next_media
 
     filename = get_next_media(subctrl=0)

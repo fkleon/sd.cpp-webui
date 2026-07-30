@@ -49,6 +49,12 @@ def app_root(tmp_path_factory):
     del os.environ["SD_WEBUI_PROMPTS_PATH"]
 
 
+@pytest.fixture(autouse=True, scope="session")
+def mock_exe_name(session_mocker):
+    """Avoid requiring a real sd/sd-cli/sd-server binary during tests."""
+    session_mocker.patch("modules.utils.sd_interface.exe_name", return_value="sd-cli")
+
+
 @pytest.fixture(autouse=True)
 def sd_options_mock(mocker):
     mocker.patch("modules.utils.sd_interface.SDOptionsCache")

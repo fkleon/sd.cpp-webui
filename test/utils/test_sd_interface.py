@@ -1,5 +1,5 @@
-import os
 import pytest
+
 from modules.utils.sd_interface import SDOptionsCache
 
 SD_VERSION = "master-367-b88cc32"
@@ -18,7 +18,7 @@ def sd_binary(request, mocker) -> None:
     help_output = (request.path.parent / f"{SD_VERSION}.txt").read_text()
 
     shutil_which_mock = mocker.patch("modules.utils.sd_interface.shutil.which")
-    shutil_which_mock.return_value = "/usr/local/bin/sd"
+    shutil_which_mock.return_value = "/usr/local/bin/sd-cli"
 
     subprocess_run_mock = mocker.patch("modules.utils.sd_interface.subprocess.run")
     subprocess_run_mock.return_value.configure_mock(
@@ -29,7 +29,7 @@ def sd_binary(request, mocker) -> None:
 
 def test_options_cache(app_cwd):
     sd_options = SDOptionsCache()
-    assert sd_options.SD_PATH == "/usr/local/bin/sd"
+    assert sd_options.SD_PATH == "sd-cli"
     assert (app_cwd / sd_options._CACHE_FILE).exists()
 
 
