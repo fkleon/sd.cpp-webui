@@ -53,7 +53,7 @@ def generate_output_filename(
         case "EpochTime":
             prefix_str = str(int(time.time()))
         case "Sequential" | _:
-            next_img = get_next_media(subctrl=subctrl_id)
+            next_img = get_next_media(media_out_dir=directory, subctrl=subctrl_id)
             prefix_str = os.path.splitext(next_img)[0]
 
     if name_parts:

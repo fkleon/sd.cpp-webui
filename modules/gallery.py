@@ -401,18 +401,8 @@ class GalleryManager:
         )
 
 
-def get_next_media(subctrl: int) -> str:
+def get_next_media(media_out_dir: str, subctrl: int) -> str:
     """Creates a new, sequential media name (e.g., '123.png')."""
-    dir_map = {
-        0: "txt2img_dir",
-        1: "img2img_dir",
-        2: "imgedit_dir",
-        3: "any2video_dir",
-        4: "upscale_dir",
-    }
-    dir_key = dir_map.get(subctrl, "txt2img_dir")
-    media_out_dir = config.get(dir_key)
-
     if not os.path.isdir(media_out_dir):
         os.makedirs(media_out_dir, exist_ok=True)
 
