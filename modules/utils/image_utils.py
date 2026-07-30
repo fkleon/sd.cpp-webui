@@ -1,8 +1,7 @@
 """sd.cpp-webui - Utilities for image processing"""
 
-from PIL import Image
-
 import gradio as gr
+from PIL import Image
 
 
 def switch_sizes(height, width):
@@ -21,9 +20,7 @@ def size_extractor(image):
 
 def size_updater(img_inp):
     if not img_inp:
-        return (
-            gr.update(), gr.update()
-        )
+        return (gr.update(), gr.update())
 
     if isinstance(img_inp, list):
         first_img = img_inp[0]
@@ -39,10 +36,6 @@ def size_updater(img_inp):
     width, height = size_extractor(img_path)
 
     if width is None or height is None:
-        return (
-            gr.update(), gr.update()
-        )
+        return (gr.update(), gr.update())
 
-    return (
-        gr.update(value=int(width)), gr.update(value=int(height))
-    )
+    return (gr.update(value=int(width)), gr.update(value=int(height)))

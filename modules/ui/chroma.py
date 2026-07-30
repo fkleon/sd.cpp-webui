@@ -5,9 +5,7 @@ import gradio as gr
 
 def create_chroma_ui():
     """Create Chroma specific UI"""
-    with gr.Accordion(
-        label="Chroma settings", open=False
-    ):
+    with gr.Accordion(label="Chroma settings", open=False):
         with gr.Row():
             disable_dit_mask = gr.Checkbox(
                 label="Disable DiT mask for Chroma",
@@ -25,7 +23,7 @@ def create_chroma_ui():
             )
 
         return {
-            'in_disable_dit_mask': disable_dit_mask,
-            'in_enable_t5_mask': enable_t5_mask,
-            'in_t5_mask_pad': t5_mask_pad
+            "in_disable_dit_mask": disable_dit_mask,
+            "in_enable_t5_mask": enable_t5_mask,
+            "in_t5_mask_pad": t5_mask_pad,
         }

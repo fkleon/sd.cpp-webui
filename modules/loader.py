@@ -1,34 +1,30 @@
 """sd.cpp-webui - Model loader module"""
 
 import os
-import httpx
-from typing import List
 
 import gradio as gr
+import httpx
 
-from modules.shared_instance import (
-    config, current_mode, server_state
-)
-
+from modules.shared_instance import config, current_mode, server_state
 
 SUPPORTED_EXTENSIONS = (".gguf", ".safetensors", ".sft", ".pth", ".ckpt")
 MODEL_DIR_MAP = {
-    "Checkpoint": config.get('ckpt_dir'),
-    "UNET": config.get('unet_dir'),
-    "VAE": config.get('vae_dir'),
-    "clip_g": config.get('txt_enc_dir'),
-    "clip_l": config.get('txt_enc_dir'),
-    "t5xxl": config.get('txt_enc_dir'),
-    "llm": config.get('txt_enc_dir'),
-    "taesd": config.get('taesd_dir'),
-    "Lora": config.get('lora_dir'),
-    "Embeddings": config.get('emb_dir'),
-    "Upscalers": config.get('upscl_dir'),
-    "ControlNet": config.get('cnnet_dir')
+    "Checkpoint": config.get("ckpt_dir"),
+    "UNET": config.get("unet_dir"),
+    "VAE": config.get("vae_dir"),
+    "clip_g": config.get("txt_enc_dir"),
+    "clip_l": config.get("txt_enc_dir"),
+    "t5xxl": config.get("txt_enc_dir"),
+    "llm": config.get("txt_enc_dir"),
+    "taesd": config.get("taesd_dir"),
+    "Lora": config.get("lora_dir"),
+    "Embeddings": config.get("emb_dir"),
+    "Upscalers": config.get("upscl_dir"),
+    "ControlNet": config.get("cnnet_dir"),
 }
 
 
-def get_models(models_folder: str) -> List[str]:
+def get_models(models_folder: str) -> list[str]:
     """
     Lists all supported models in a folder.
 
@@ -74,7 +70,7 @@ def reload_models(models_folder: str) -> gr.Dropdown:
     return gr.update(choices=get_models(models_folder))
 
 
-def get_loras() -> List[str]:
+def get_loras() -> list[str]:
     """
     Lists all the available LoRAs.
 
@@ -92,7 +88,6 @@ def get_loras() -> List[str]:
         lora_api_url = f"http://{ip}:{port}/sdapi/v1/loras"
 
         try:
-
             resp_lora = httpx.get(lora_api_url, timeout=1.0)
 
             if resp_lora.status_code == 200:

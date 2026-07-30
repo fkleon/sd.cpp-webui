@@ -6,31 +6,25 @@ import gradio as gr
 
 from modules.shared_instance import config
 from modules.utils.ui_events import update_interactivity
-from .constants import (
-    CACHE_MODE, SCM_POLICY
-)
+
+from .constants import CACHE_MODE, SCM_POLICY
 
 
 def create_cache_ui():
     """Create cache specific UI"""
-    with gr.Accordion(
-        label="Cache", open=False
-    ):
+    with gr.Accordion(label="Cache", open=False):
         cache_bool = gr.Checkbox(
-            label="Enable cache",
-            value=config.get('def_cache_bool')
+            label="Enable cache", value=config.get("def_cache_bool")
         )
 
         cache_mode = gr.Dropdown(
             label="Cache mode",
             choices=CACHE_MODE,
-            value=config.get('def_cache_mode'),
-            interactive=config.get('def_cache_bool')
+            value=config.get("def_cache_mode"),
+            interactive=config.get("def_cache_bool"),
         )
 
-        with gr.Accordion(
-            label="Advanced", open=False
-        ):
+        with gr.Accordion(label="Advanced", open=False):
             cache_option = gr.Textbox(
                 label="Cache option",
                 placeholder=(
@@ -39,7 +33,7 @@ def create_cache_ui():
                     "threshold=,start=,end=,decay=,relative=,reset=\n"
                     "- dbcache/taylorseer/cache-dit:\n"
                     "Fn=,Bn=,threshold=,warmup=\n"
-                    "Examples: \"threshold=0.25\" or\n"
+                    'Examples: "threshold=0.25" or\n'
                     '"threshold=1.5,reset=0"'
                 ),
                 lines=7,
@@ -49,7 +43,7 @@ def create_cache_ui():
                 label="SCM Mask",
                 placeholder=(
                     "SCM steps mask for cache-dit:\n"
-                    "comma-separated 0/1 (e.g., \"1,1,1,0,0,1,0,0,1,0\") - 1=compute, 0=can cache"
+                    'comma-separated 0/1 (e.g., "1,1,1,0,0,1,0,0,1,0") - 1=compute, 0=can cache'
                 ),
                 lines=2,
             )
@@ -57,24 +51,21 @@ def create_cache_ui():
             scm_policy = gr.Dropdown(
                 label="SCM Policy",
                 choices=SCM_POLICY,
-                value=config.get('def_scm_policy')
+                value=config.get("def_scm_policy"),
             )
 
-    cache_comp = [
-        cache_mode, cache_option,
-        scm_mask, scm_policy
-    ]
+    cache_comp = [cache_mode, cache_option, scm_mask, scm_policy]
 
     cache_bool.change(
         partial(update_interactivity, len(cache_comp)),
         inputs=cache_bool,
-        outputs=cache_comp
+        outputs=cache_comp,
     )
 
     return {
-        'in_cache_bool': cache_bool,
-        'in_cache_mode': cache_mode,
-        'in_cache_option': cache_option,
-        'in_scm_mask': scm_mask,
-        'in_scm_policy': scm_policy
+        "in_cache_bool": cache_bool,
+        "in_cache_mode": cache_mode,
+        "in_cache_option": cache_option,
+        "in_scm_mask": scm_mask,
+        "in_scm_policy": scm_policy,
     }

@@ -1,9 +1,10 @@
-from modules.utils.preset_manager import PresetManager
-from modules.utils.prompt_manager import PromptManager
-import pytest
 import os
 
+import pytest
+
 from modules.config import ConfigManager
+from modules.utils.preset_manager import PresetManager
+from modules.utils.prompt_manager import PromptManager
 
 
 @pytest.fixture(autouse=True, scope="session")

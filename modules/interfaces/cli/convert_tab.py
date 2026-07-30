@@ -3,34 +3,27 @@
 import gradio as gr
 
 from modules.core.cli.sdcpp_cli import convert
+from modules.loader import get_models, model_choice, reload_models
+from modules.shared_instance import config, subprocess_manager
+from modules.ui.constants import MODELS, QUANTS, RELOAD_SYMBOL
 from modules.utils.ui_events import get_ordered_inputs
-from modules.shared_instance import (
-    config, subprocess_manager
-)
-from modules.loader import (
-    get_models, reload_models, model_choice
-)
-from modules.ui.constants import (
-    MODELS, QUANTS, RELOAD_SYMBOL
-)
-
 
 with gr.Blocks() as convert_block:
     inputs_map = {}
 
-    ckpt_dir_txt = gr.Textbox(value=config.get('ckpt_dir'), visible=False)
-    vae_dir_txt = gr.Textbox(value=config.get('vae_dir'), visible=False)
-    unet_dir_txt = gr.Textbox(value=config.get('unet_dir'), visible=False)
-    txt_enc_dir_txt = gr.Textbox(value=config.get('txt_enc_dir'), visible=False)
-    emb_dir_txt = gr.Textbox(value=config.get('emb_dir'), visible=False)
-    lora_dir_txt = gr.Textbox(value=config.get('lora_dir'), visible=False)
-    taesd_dir_txt = gr.Textbox(value=config.get('taesd_dir'), visible=False)
-    upscl_dir_txt = gr.Textbox(value=config.get('upscl_dir'), visible=False)
-    cnnet_dir_txt = gr.Textbox(value=config.get('cnnet_dir'), visible=False)
+    ckpt_dir_txt = gr.Textbox(value=config.get("ckpt_dir"), visible=False)
+    vae_dir_txt = gr.Textbox(value=config.get("vae_dir"), visible=False)
+    unet_dir_txt = gr.Textbox(value=config.get("unet_dir"), visible=False)
+    txt_enc_dir_txt = gr.Textbox(value=config.get("txt_enc_dir"), visible=False)
+    emb_dir_txt = gr.Textbox(value=config.get("emb_dir"), visible=False)
+    lora_dir_txt = gr.Textbox(value=config.get("lora_dir"), visible=False)
+    taesd_dir_txt = gr.Textbox(value=config.get("taesd_dir"), visible=False)
+    upscl_dir_txt = gr.Textbox(value=config.get("upscl_dir"), visible=False)
+    cnnet_dir_txt = gr.Textbox(value=config.get("cnnet_dir"), visible=False)
 
     # Active model directory holder
-    model_dir_txt = gr.Textbox(value=config.get('ckpt_dir'), visible=False)
-    inputs_map['in_model_dir'] = model_dir_txt
+    model_dir_txt = gr.Textbox(value=config.get("ckpt_dir"), visible=False)
+    inputs_map["in_model_dir"] = model_dir_txt
 
     # Title
     convert_title = gr.Markdown("# Convert and Quantize")
@@ -38,110 +31,81 @@ with gr.Blocks() as convert_block:
     with gr.Row():
         with gr.Column():
             model_type = gr.Dropdown(
-                label="Model Type",
-                choices=MODELS,
-                interactive=True,
-                value="Checkpoint"
+                label="Model Type", choices=MODELS, interactive=True, value="Checkpoint"
             )
-            model_type.input(
-                model_choice,
-                inputs=[model_type],
-                outputs=[model_dir_txt]
-            )
+            model_type.input(model_choice, inputs=[model_type], outputs=[model_dir_txt])
 
             with gr.Group():
                 orig_model = gr.Dropdown(
                     label="Model",
-                    choices=get_models(config.get('ckpt_dir')),
+                    choices=get_models(config.get("ckpt_dir")),
                     scale=5,
-                    interactive=True
+                    interactive=True,
                 )
-                reload_btn = gr.Button(
-                    RELOAD_SYMBOL, scale=1
-                )
+                reload_btn = gr.Button(RELOAD_SYMBOL, scale=1)
                 reload_btn.click(
-                    reload_models,
-                    inputs=[model_dir_txt],
-                    outputs=[orig_model]
+                    reload_models, inputs=[model_dir_txt], outputs=[orig_model]
                 )
-                inputs_map['in_orig_model'] = orig_model
+                inputs_map["in_orig_model"] = orig_model
 
             with gr.Row():
                 gguf_name = gr.Textbox(
-                    label="Output Name (optional, must end with .gguf)",
-                    value=""
+                    label="Output Name (optional, must end with .gguf)", value=""
                 )
-                inputs_map['in_gguf_name'] = gguf_name
+                inputs_map["in_gguf_name"] = gguf_name
 
             with gr.Row():
                 quant_type = gr.Dropdown(
-                    label="Type",
-                    choices=QUANTS,
-                    value=QUANTS[0],
-                    interactive=True
+                    label="Type", choices=QUANTS, value=QUANTS[0], interactive=True
                 )
-                inputs_map['in_quant_type'] = quant_type
+                inputs_map["in_quant_type"] = quant_type
 
-            with gr.Accordion(
-                label="Weight type per tensor pattern",
-                open=False
-            ):
+            with gr.Accordion(label="Weight type per tensor pattern", open=False):
                 tensor_type_rules = gr.Textbox(
                     show_label=False,
                     container=False,
                     value="",
-                    placeholder="example: \"^vae\\.=f16,model\\.=q8_0\"",
-                    interactive=True
+                    placeholder='example: "^vae\\.=f16,model\\.=q8_0"',
+                    interactive=True,
                 )
-                inputs_map['in_tensor_type_rules'] = tensor_type_rules
+                inputs_map["in_tensor_type_rules"] = tensor_type_rules
 
             with gr.Row():
-                convert_name = gr.Checkbox(
-                    label="Convert tensor name"
-                )
-                inputs_map['in_convert_name'] = convert_name
+                convert_name = gr.Checkbox(label="Convert tensor name")
+                inputs_map["in_convert_name"] = convert_name
 
-            color = gr.Checkbox(
-                label="Color", value=True
-            )
-            inputs_map['in_color'] = color
+            color = gr.Checkbox(label="Color", value=True)
+            inputs_map["in_color"] = color
 
             verbose = gr.Checkbox(label="Verbose")
-            inputs_map['in_verbose'] = verbose
+            inputs_map["in_verbose"] = verbose
 
-        with gr.Column():
-            with gr.Group():
-                with gr.Row():
-                    convert_btn = gr.Button(
-                        value="Convert", variant="primary"
-                    )
-                    kill_btn = gr.Button(
-                        value="Stop", variant="stop"
-                    )
-                with gr.Row():
-                    progress_slider = gr.Slider(
-                        minimum=0,
-                        maximum=100,
-                        value=0,
-                        interactive=False,
-                        visible=False,
-                        label="Progress",
-                    )
-                with gr.Row():
-                    status_textbox = gr.Textbox(
-                        label="Status:",
-                        visible=False,
-                        interactive=False
-                    )
+        with gr.Column(), gr.Group():
+            with gr.Row():
+                convert_btn = gr.Button(value="Convert", variant="primary")
+                kill_btn = gr.Button(value="Stop", variant="stop")
+            with gr.Row():
+                progress_slider = gr.Slider(
+                    minimum=0,
+                    maximum=100,
+                    value=0,
+                    interactive=False,
+                    visible=False,
+                    label="Progress",
+                )
+            with gr.Row():
+                status_textbox = gr.Textbox(
+                    label="Status:", visible=False, interactive=False
+                )
 
-                with gr.Row():
-                    command = gr.Textbox(
-                        label="stable-diffusion.cpp command:",
-                        show_label=True,
-                        value="",
-                        interactive=False,
-                        buttons=['copy'],
-                    )
+            with gr.Row():
+                command = gr.Textbox(
+                    label="stable-diffusion.cpp command:",
+                    show_label=True,
+                    value="",
+                    interactive=False,
+                    buttons=["copy"],
+                )
 
     ordered_keys, ordered_components = get_ordered_inputs(inputs_map)
 
@@ -157,17 +121,9 @@ with gr.Blocks() as convert_block:
     convert_btn.click(
         convert_wrapper,
         inputs=ordered_components,
-        outputs=[command, progress_slider, status_textbox]
+        outputs=[command, progress_slider, status_textbox],
     )
 
-    kill_btn.click(
-        subprocess_manager.kill_subprocess,
-        inputs=[],
-        outputs=[]
-    )
+    kill_btn.click(subprocess_manager.kill_subprocess, inputs=[], outputs=[])
 
-    model_dir_txt.change(
-        reload_models,
-        inputs=[model_dir_txt],
-        outputs=[orig_model]
-    )
+    model_dir_txt.change(reload_models, inputs=[model_dir_txt], outputs=[orig_model])

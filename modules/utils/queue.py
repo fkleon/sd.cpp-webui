@@ -3,7 +3,6 @@
 import queue
 import threading
 
-
 _job_queue = queue.Queue()
 _state_lock = threading.Lock()
 
@@ -17,7 +16,7 @@ def get_clean_state():
         "images": None,
         "is_running": False,
         "is_finished": False,
-        "owner": None
+        "owner": None,
     }
 
 
@@ -32,9 +31,9 @@ def _background_worker():
     while True:
         job = _job_queue.get()
 
-        func = job['func']
-        params = job['params']
-        owner = job.get('owner')
+        func = job["func"]
+        params = job["params"]
+        owner = job.get("owner")
 
         with _state_lock:
             current_job_state.update(get_clean_state())
@@ -50,17 +49,17 @@ def _background_worker():
                         current_job_state["status"],
                         current_job_state["stats"],
                         current_job_state["images"],
-                        *rest
+                        *rest,
                     ) = result
                 else:
                     print(
-                        "Worker Warning: Expected 5 items from generator, " +
-                        f"got {len(result) if result else 0}"
+                        "Worker Warning: Expected 5 items from generator, "
+                        + f"got {len(result) if result else 0}"
                     )
 
         except Exception as e:
             with _state_lock:
-                current_job_state["status"] = f"Error: {str(e)}"
+                current_job_state["status"] = f"Error: {e!s}"
             print(f"Worker Error: {e}")
 
         finally:
@@ -81,11 +80,7 @@ def add_job(func, params, owner=None):
     :param func: The python function to run (e.g., txt2img)
     :param params: A dictionary of arguments for that function
     """
-    job = {
-        'func': func,
-        'params': params,
-        'owner': owner
-    }
+    job = {"func": func, "params": params, "owner": owner}
     _job_queue.put(job)
 
 

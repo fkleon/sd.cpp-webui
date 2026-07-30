@@ -10,48 +10,38 @@ from modules.utils.ui_events import update_interactivity
 
 
 def create_preview_ui():
-    with gr.Accordion(
-        label="Preview", open=False
-    ):
+    with gr.Accordion(label="Preview", open=False):
         preview_bool = gr.Checkbox(
-            label="Enable Preview",
-            value=config.get('def_preview_bool')
+            label="Enable Preview", value=config.get("def_preview_bool")
         )
         preview_mode = gr.Dropdown(
-            label="Preview mode",
-            choices=PREVIEW,
-            value=config.get('def_preview_mode')
+            label="Preview mode", choices=PREVIEW, value=config.get("def_preview_mode")
         )
         preview_interval = gr.Number(
             label="Preview interval",
-            value=config.get('def_preview_interval'),
+            value=config.get("def_preview_interval"),
             minimum=1,
-            interactive=True
+            interactive=True,
         )
         preview_taesd = gr.Checkbox(
-            label="TAESD for preview only",
-            value=config.get('def_preview_taesd')
+            label="TAESD for preview only", value=config.get("def_preview_taesd")
         )
         preview_noisy = gr.Checkbox(
-            label="Preview noisy",
-            value=config.get('def_preview_noisy')
+            label="Preview noisy", value=config.get("def_preview_noisy")
         )
 
-    preview_comp = [
-        preview_mode, preview_interval, preview_taesd,
-        preview_noisy
-    ]
+    preview_comp = [preview_mode, preview_interval, preview_taesd, preview_noisy]
 
     preview_bool.change(
         partial(update_interactivity, len(preview_comp)),
         inputs=preview_bool,
-        outputs=preview_comp
+        outputs=preview_comp,
     )
 
     return {
-        'in_preview_bool': preview_bool,
-        'in_preview_mode': preview_mode,
-        'in_preview_interval': preview_interval,
-        'in_preview_taesd': preview_taesd,
-        'in_preview_noisy': preview_noisy,
+        "in_preview_bool": preview_bool,
+        "in_preview_mode": preview_mode,
+        "in_preview_interval": preview_interval,
+        "in_preview_taesd": preview_taesd,
+        "in_preview_noisy": preview_noisy,
     }

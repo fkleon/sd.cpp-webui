@@ -1,98 +1,97 @@
 """sd.cpp-webui - utils - configuration module"""
 
-import os
 import json
-from typing import Any, Dict
-
+import os
+from typing import Any
 
 CURRENT_DIR = os.getcwd()
-DEFAULT_CONFIG_PATH = os.path.join('user_data', 'config.json')
+DEFAULT_CONFIG_PATH = os.path.join("user_data", "config.json")
 DEFAULT_SETTINGS = {
-    'def_theme': "default",
-    'ckpt_dir': os.path.join(CURRENT_DIR, "models/checkpoints/"),
-    'unet_dir': os.path.join(CURRENT_DIR, "models/unet/"),
-    'vae_dir': os.path.join(CURRENT_DIR, "models/vae/"),
-    'txt_enc_dir': os.path.join(CURRENT_DIR, "models/text_encoders/"),
-    'emb_dir': os.path.join(CURRENT_DIR, "models/embeddings/"),
-    'lora_dir': os.path.join(CURRENT_DIR, "models/loras/"),
-    'taesd_dir': os.path.join(CURRENT_DIR, "models/taesd/"),
-    'phtmkr_dir': os.path.join(CURRENT_DIR, "models/photomaker/"),
-    'upscl_dir': os.path.join(CURRENT_DIR, "models/upscale_models/"),
-    'cnnet_dir': os.path.join(CURRENT_DIR, "models/controlnet/"),
-    'txt2img_dir': os.path.join(CURRENT_DIR, "outputs/txt2img/"),
-    'img2img_dir': os.path.join(CURRENT_DIR, "outputs/img2img/"),
-    'imgedit_dir': os.path.join(CURRENT_DIR, "outputs/imgedit/"),
-    'any2video_dir': os.path.join(CURRENT_DIR, "outputs/any2video/"),
-    'upscale_dir': os.path.join(CURRENT_DIR, "outputs/upscale/"),
-    'def_type': "Default",
-    'def_model_tab': "checkpoint",
-    'def_lora_strength': 1.0,
-    'def_sampling': "euler_a",
-    'def_steps': 20,
-    'def_scheduler': "discrete",
-    'def_width': 512,
-    'def_height': 512,
-    'def_cfg': 7.0,
-    'def_flow_shift_bool': False,
-    'def_flow_shift': 3.0,
-    'def_guidance_bool': False,
-    'def_guidance': 3.5,
-    'def_seed': -1,
-    'def_clip_skip': -1,
-    'def_batch_count': 1,
-    'def_rng': "Default",
-    'def_sampler_rng': "Default",
-    'def_predict': "Default",
-    'def_lora_apply': "auto",
-    'def_output': "",
-    'def_mmap': True,
-    'def_color': True,
-    'def_verbose': False,
-    'def_preview_bool': False,
-    'def_preview_mode': "none",
-    'def_preview_interval': 1,
-    'def_preview_taesd': False,
-    'def_preview_noisy': False,
-    'def_vae_tiling': False,
-    'def_vae_tile_overlap': 0.5,
-    'def_vae_tile_size': 32,
-    'def_vae_relative_bool': False,
-    'def_vae_relative_tile_size': 0,
-    'def_temporal_tiling': False,
-    'def_cache_bool': False,
-    'def_cache_mode': "easycache",
-    'def_scm_policy': "none",
-    'def_threads': 0,
-    'def_max_vram': 0,
-    'def_backend_table': [
+    "def_theme": "default",
+    "ckpt_dir": os.path.join(CURRENT_DIR, "models/checkpoints/"),
+    "unet_dir": os.path.join(CURRENT_DIR, "models/unet/"),
+    "vae_dir": os.path.join(CURRENT_DIR, "models/vae/"),
+    "txt_enc_dir": os.path.join(CURRENT_DIR, "models/text_encoders/"),
+    "emb_dir": os.path.join(CURRENT_DIR, "models/embeddings/"),
+    "lora_dir": os.path.join(CURRENT_DIR, "models/loras/"),
+    "taesd_dir": os.path.join(CURRENT_DIR, "models/taesd/"),
+    "phtmkr_dir": os.path.join(CURRENT_DIR, "models/photomaker/"),
+    "upscl_dir": os.path.join(CURRENT_DIR, "models/upscale_models/"),
+    "cnnet_dir": os.path.join(CURRENT_DIR, "models/controlnet/"),
+    "txt2img_dir": os.path.join(CURRENT_DIR, "outputs/txt2img/"),
+    "img2img_dir": os.path.join(CURRENT_DIR, "outputs/img2img/"),
+    "imgedit_dir": os.path.join(CURRENT_DIR, "outputs/imgedit/"),
+    "any2video_dir": os.path.join(CURRENT_DIR, "outputs/any2video/"),
+    "upscale_dir": os.path.join(CURRENT_DIR, "outputs/upscale/"),
+    "def_type": "Default",
+    "def_model_tab": "checkpoint",
+    "def_lora_strength": 1.0,
+    "def_sampling": "euler_a",
+    "def_steps": 20,
+    "def_scheduler": "discrete",
+    "def_width": 512,
+    "def_height": 512,
+    "def_cfg": 7.0,
+    "def_flow_shift_bool": False,
+    "def_flow_shift": 3.0,
+    "def_guidance_bool": False,
+    "def_guidance": 3.5,
+    "def_seed": -1,
+    "def_clip_skip": -1,
+    "def_batch_count": 1,
+    "def_rng": "Default",
+    "def_sampler_rng": "Default",
+    "def_predict": "Default",
+    "def_lora_apply": "auto",
+    "def_output": "",
+    "def_mmap": True,
+    "def_color": True,
+    "def_verbose": False,
+    "def_preview_bool": False,
+    "def_preview_mode": "none",
+    "def_preview_interval": 1,
+    "def_preview_taesd": False,
+    "def_preview_noisy": False,
+    "def_vae_tiling": False,
+    "def_vae_tile_overlap": 0.5,
+    "def_vae_tile_size": 32,
+    "def_vae_relative_bool": False,
+    "def_vae_relative_tile_size": 0,
+    "def_temporal_tiling": False,
+    "def_cache_bool": False,
+    "def_cache_mode": "easycache",
+    "def_scm_policy": "none",
+    "def_threads": 0,
+    "def_max_vram": 0,
+    "def_backend_table": [
         ["primary", "default"],
         ["diffusion", "default"],
         ["te", "default"],
         ["vae", "default"],
-        ["controlnet", "default"]
+        ["controlnet", "default"],
     ],
-    'def_params_backend_table': [
+    "def_params_backend_table": [
         ["primary", "default"],
         ["diffusion", "default"],
         ["te", "default"],
         ["vae", "default"],
-        ["controlnet", "default"]
+        ["controlnet", "default"],
     ],
-    'def_flash_attn': False,
-    'def_diffusion_fa': False,
-    'def_diffusion_conv_direct': False,
-    'def_vae_conv_direct': False,
-    'def_force_sdxl_vae_conv_scale': False,
-    'def_env_vk_visible_override': False,
-    'def_env_GGML_VK_VISIBLE_DEVICES': 0,
-    'def_env_cuda_visible_override': False,
-    'def_env_CUDA_VISIBLE_DEVICES': 0,
-    'def_env_GGML_VK_DISABLE_COOPMAT': False,
-    'def_env_GGML_VK_DISABLE_INTEGER_DOT_PRODUCT': False,
-    'def_output_scheme': "Sequential",
-    'def_output_steps': False,
-    'def_output_quant': False,
-    'def_gallery_sorting': "Date (Oldest First)"
+    "def_flash_attn": False,
+    "def_diffusion_fa": False,
+    "def_diffusion_conv_direct": False,
+    "def_vae_conv_direct": False,
+    "def_force_sdxl_vae_conv_scale": False,
+    "def_env_vk_visible_override": False,
+    "def_env_GGML_VK_VISIBLE_DEVICES": 0,
+    "def_env_cuda_visible_override": False,
+    "def_env_CUDA_VISIBLE_DEVICES": 0,
+    "def_env_GGML_VK_DISABLE_COOPMAT": False,
+    "def_env_GGML_VK_DISABLE_INTEGER_DOT_PRODUCT": False,
+    "def_output_scheme": "Sequential",
+    "def_output_steps": False,
+    "def_output_quant": False,
+    "def_gallery_sorting": "Date (Oldest First)",
 }
 
 
@@ -102,49 +101,47 @@ class ConfigManager:
     """
 
     PATH_MAP = {
-        'def_ckpt': 'ckpt_dir',
-        'def_unet': 'unet_dir',
-        'def_vae': 'vae_dir',
-        'def_ckpt_vae': 'vae_dir',
-        'def_unet_vae': 'vae_dir',
-        'def_audio_vae': 'vae_dir',
-        'def_taesd': 'taesd_dir',
-        'def_phtmkr': 'phtmkr_dir',
-        'def_cnnet': 'cnnet_dir',
-        'def_uncond_unet': 'unet_dir',
-        'def_t5xxl': 'txt_enc_dir',
-        'def_clip_l': 'txt_enc_dir',
-        'def_clip_g': 'txt_enc_dir',
-        'def_clip_vision_h': 'txt_enc_dir',
-        'def_umt5_xxl': 'txt_enc_dir',
-        'def_emb_connect': 'txt_enc_dir',
-        'def_llm': 'txt_enc_dir',
+        "def_ckpt": "ckpt_dir",
+        "def_unet": "unet_dir",
+        "def_vae": "vae_dir",
+        "def_ckpt_vae": "vae_dir",
+        "def_unet_vae": "vae_dir",
+        "def_audio_vae": "vae_dir",
+        "def_taesd": "taesd_dir",
+        "def_phtmkr": "phtmkr_dir",
+        "def_cnnet": "cnnet_dir",
+        "def_uncond_unet": "unet_dir",
+        "def_t5xxl": "txt_enc_dir",
+        "def_clip_l": "txt_enc_dir",
+        "def_clip_g": "txt_enc_dir",
+        "def_clip_vision_h": "txt_enc_dir",
+        "def_umt5_xxl": "txt_enc_dir",
+        "def_emb_connect": "txt_enc_dir",
+        "def_llm": "txt_enc_dir",
     }
 
     def __init__(self, config_path: str = None):
         self.config_path = os.getenv(
-            'SD_WEBUI_CONFIG_PATH', config_path or DEFAULT_CONFIG_PATH
+            "SD_WEBUI_CONFIG_PATH", config_path or DEFAULT_CONFIG_PATH
         )
         self.data = self._load_json(self.config_path) or {}
         self._initialize_files()
 
-    def _load_json(self, file_path: str) -> Dict[str, Any]:
+    def _load_json(self, file_path: str) -> dict[str, Any]:
         """Safely loads a JSON file."""
         if not os.path.isfile(file_path):
             return {}
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except (json.JSONDecodeError, OSError) as e:
-            print(
-                f"Error loading {file_path}: {e}. Using empty configuration."
-            )
+            print(f"Error loading {file_path}: {e}. Using empty configuration.")
             return {}
 
-    def _save_json(self, file_path: str, data: Dict[str, Any]):
+    def _save_json(self, file_path: str, data: dict[str, Any]):
         """Saves data to a JSON file."""
         try:
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4)
         except OSError as e:
             print(f"Error saving to {file_path}: {e}")
@@ -173,7 +170,7 @@ class ConfigManager:
         if not isinstance(value, str) or not value:
             return value
 
-        if key.endswith('_dir'):
+        if key.endswith("_dir"):
             if not os.path.exists(value):
                 return None
             return value
@@ -197,7 +194,7 @@ class ConfigManager:
         """Saves the current configuration."""
         self._save_json(self.config_path, self.data)
 
-    def update_settings(self, new_settings: Dict[str, Any]):
+    def update_settings(self, new_settings: dict[str, Any]):
         """Updates the configuration with new settings and saves."""
         self.data.update(new_settings)
         self.save_config()

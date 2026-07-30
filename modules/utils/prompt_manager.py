@@ -1,11 +1,10 @@
 """sd.cpp-webui - utils - prompt management module"""
 
 import os
-from typing import Tuple, List
 
 from .file_utils import load_json, save_json
 
-DEFAULT_PROMPTS_PATH = os.path.join('user_data', 'prompts.json')
+DEFAULT_PROMPTS_PATH = os.path.join("user_data", "prompts.json")
 
 
 class PromptManager:
@@ -13,7 +12,7 @@ class PromptManager:
 
     def __init__(self, prompt_path: str = None):
         self.prompts_path = os.getenv(
-            'SD_WEBUI_PROMPTS_PATH', prompt_path or DEFAULT_PROMPTS_PATH
+            "SD_WEBUI_PROMPTS_PATH", prompt_path or DEFAULT_PROMPTS_PATH
         )
         self.prompts = load_json(self.prompts_path) or {}
         self._initialize_files()
@@ -28,7 +27,7 @@ class PromptManager:
         """Saves the current prompts dictionary to disk."""
         save_json(self.prompts_path, self.prompts)
 
-    def get_prompts(self) -> List[str]:
+    def get_prompts(self) -> list[str]:
         """Returns a list of saved prompts."""
         return sorted(list(self.prompts.keys()))
 
@@ -36,9 +35,7 @@ class PromptManager:
         """Adds or updates a prompt."""
         if not name:
             return
-        self.prompts[name.strip()] = {
-            'positive': positive, 'negative': negative
-        }
+        self.prompts[name.strip()] = {"positive": positive, "negative": negative}
         self.save_prompts()
 
     def delete_prompt(self, name: str):
@@ -47,7 +44,7 @@ class PromptManager:
             del self.prompts[name]
             self.save_prompts()
 
-    def get_prompt(self, name: str) -> Tuple[str, str]:
+    def get_prompt(self, name: str) -> tuple[str, str]:
         """Retrieves a specific prompt as two generate strings for Gradio."""
-        prompt = self.prompts.get(name, {'positive': '', 'negative': ''})
-        return prompt['positive'], prompt['negative']
+        prompt = self.prompts.get(name, {"positive": "", "negative": ""})
+        return prompt["positive"], prompt["negative"]

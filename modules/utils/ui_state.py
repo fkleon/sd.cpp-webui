@@ -1,6 +1,5 @@
 """sd.cpp-webui - utils - UI state module"""
 
-
 _SESSION_CACHE = {}
 
 
@@ -38,34 +37,43 @@ class ModelState:
         bak_t5xxl: The backup T5-XXL model.
         bak_llm: The backup LLM model.
     """
-    @property
-    def bak_ckpt_model(self): return get_session_value('def_ckpt')
 
     @property
-    def bak_unet_model(self): return get_session_value('def_unet')
+    def bak_ckpt_model(self):
+        return get_session_value("def_ckpt")
 
     @property
-    def bak_ckpt_vae(self): return get_session_value('def_ckpt_vae')
+    def bak_unet_model(self):
+        return get_session_value("def_unet")
 
     @property
-    def bak_unet_vae(self): return get_session_value('def_unet_vae')
+    def bak_ckpt_vae(self):
+        return get_session_value("def_ckpt_vae")
 
     @property
-    def bak_clip_g(self): return get_session_value('def_clip_g')
+    def bak_unet_vae(self):
+        return get_session_value("def_unet_vae")
 
     @property
-    def bak_clip_l(self): return get_session_value('def_clip_l')
+    def bak_clip_g(self):
+        return get_session_value("def_clip_g")
 
     @property
-    def bak_t5xxl(self): return get_session_value('def_t5xxl')
+    def bak_clip_l(self):
+        return get_session_value("def_clip_l")
 
     @property
-    def bak_llm(self): return get_session_value('def_llm')
+    def bak_t5xxl(self):
+        return get_session_value("def_t5xxl")
+
+    @property
+    def bak_llm(self):
+        return get_session_value("def_llm")
 
     @property
     def bak_guidance_bool(self):
-        return get_session_value('def_guidance_bool') is True
+        return get_session_value("def_guidance_bool") is True
 
     @property
     def bak_flow_shift_bool(self):
-        return get_session_value('def_flow_shift_bool') is True
+        return get_session_value("def_flow_shift_bool") is True

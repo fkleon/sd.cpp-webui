@@ -11,7 +11,7 @@ def test_random_seed_returns_correct_gradio_update_object():
     """
     # Arrange
     # This is what gr.update(value=-1) actually returns:
-    expected_output = {'value': -1, '__type__': 'update'}
+    expected_output = {"value": -1, "__type__": "update"}
 
     # Act
     result = random_seed()

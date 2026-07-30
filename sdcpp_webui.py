@@ -1,53 +1,61 @@
-#!/usr/bin/env python3
 """sd.cpp-webui - Main module"""
 
+import argparse
+import json
 import os
 import sys
-import json
-import argparse
 import warnings
 
 import gradio as gr
 
-from modules.interfaces.cli.txt2img_tab import (
-    txt2img_block, txt2img_params
-)
-from modules.interfaces.server.txt2img_tab import (
-    txt2img_server_block, txt2img_server_params
-)
+from modules.config import ConfigManager
+from modules.interfaces.cli.any2video_tab import any2video_block, any2video_params
+from modules.interfaces.cli.convert_tab import convert_block
 from modules.interfaces.cli.img2img_tab import (
-    img2img_block, img2img_params, img_inp_img2img
-)
-from modules.interfaces.server.img2img_tab import (
-    img2img_server_block, img2img_server_params,
-    img_inp_img2img_server
+    img2img_block,
+    img2img_params,
+    img_inp_img2img,
 )
 from modules.interfaces.cli.imgedit_tab import (
-    imgedit_block, width_imgedit, height_imgedit,
-    ref_img_imgedit
+    height_imgedit,
+    imgedit_block,
+    ref_img_imgedit,
+    width_imgedit,
+)
+from modules.interfaces.cli.txt2img_tab import txt2img_block, txt2img_params
+from modules.interfaces.cli.upscale_tab import img_inp_upscale, upscale_block
+from modules.interfaces.common.gallery_tab import (
+    cpy_2_any2video_btn,
+    cpy_2_img2img_btn,
+    cpy_2_imgedit_btn,
+    cpy_2_txt2img_btn,
+    cpy_2_upscale_btn,
+    def_page,
+    gallery,
+    gallery_block,
+    gallery_manager,
+    info_params,
+    page_num_select,
+    path_info,
+    txt2img_ctrl,
+)
+from modules.interfaces.common.options_tab import options_block, restart_btn
+from modules.interfaces.server.img2img_tab import (
+    img2img_server_block,
+    img2img_server_params,
+    img_inp_img2img_server,
 )
 from modules.interfaces.server.imgedit_tab import (
-    imgedit_server_block, width_imgedit_server,
-    height_imgedit_server, ref_img_imgedit_server
+    height_imgedit_server,
+    imgedit_server_block,
+    ref_img_imgedit_server,
+    width_imgedit_server,
 )
-from modules.interfaces.cli.any2video_tab import (
-    any2video_block, any2video_params
+from modules.interfaces.server.txt2img_tab import (
+    txt2img_server_block,
+    txt2img_server_params,
 )
-from modules.interfaces.cli.upscale_tab import (
-    upscale_block, img_inp_upscale
-)
-from modules.interfaces.common.gallery_tab import (
-    gallery_block, cpy_2_txt2img_btn, cpy_2_img2img_btn, cpy_2_imgedit_btn,
-    cpy_2_any2video_btn, cpy_2_upscale_btn, info_params, path_info,
-    gallery, gallery_manager, def_page, txt2img_ctrl, page_num_select
-)
-from modules.interfaces.cli.convert_tab import convert_block
-from modules.interfaces.common.options_tab import (
-    options_block, restart_btn
-)
-from modules.config import ConfigManager
 from modules.ui.constants import FIELDS, SAMPLERS, SCHEDULERS
-
 
 DARK_MODE_JS = """
 function refresh() {
@@ -62,10 +70,10 @@ function refresh() {
 
 warnings.filterwarnings("ignore", message=".*HTTP_422_UNPROCESSABLE_ENTITY.*")
 
-os.environ['GRADIO_ANALYTICS_ENABLED'] = 'False'
+os.environ["GRADIO_ANALYTICS_ENABLED"] = "False"
 config = ConfigManager()
 
-theme = config.get('def_theme')
+theme = config.get("def_theme")
 
 
 def create_copy_fn(tab_id: str, fields: list = None) -> callable:
@@ -79,6 +87,7 @@ def create_copy_fn(tab_id: str, fields: list = None) -> callable:
     Returns:
         A function suitable for a Gradio .click() event.
     """
+
     def copy_fn(*args):
         # The first return value switches the tab,
         # the rest are the passed-through arguments.
@@ -86,12 +95,13 @@ def create_copy_fn(tab_id: str, fields: list = None) -> callable:
         if fields:
             values = []
             for name, value in zip(fields, args):
-                if name == 'sampling' and value not in SAMPLERS:
-                    value = config.get('def_sampling')
-                elif name == 'scheduler' and value not in SCHEDULERS:
-                    value = config.get('def_scheduler')
+                if name == "sampling" and value not in SAMPLERS:
+                    value = config.get("def_sampling")
+                elif name == "scheduler" and value not in SCHEDULERS:
+                    value = config.get("def_scheduler")
                 values.append(value)
         return [gr.Tabs(selected=tab_id), *values]
+
     return copy_fn
 
 
@@ -103,9 +113,7 @@ def copy_to_imgedit(width, height, path_info):
 def lazy_load_gallery(is_loaded, page, ctrl):
     if is_loaded:
         # If already loaded, return existing values (do nothing)
-        return (
-            gr.skip(), gr.skip(), True
-        )
+        return (gr.skip(), gr.skip(), True)
 
     results = gallery_manager.reload_gallery(page, ctrl)
 
@@ -116,8 +124,9 @@ def get_allowed_paths(config_data, base_path: str) -> list:
     """Parses config to find allowed external or linked directories."""
     allowed_paths = []
     dirs = [
-        val for key, val in config.data.items()
-        if key.endswith('_dir') and isinstance(val, str) and val
+        val
+        for key, val in config.data.items()
+        if key.endswith("_dir") and isinstance(val, str) and val
     ]
 
     for path in dirs:
@@ -137,9 +146,7 @@ def get_allowed_paths(config_data, base_path: str) -> list:
         if is_link or is_external:
             if is_link:
                 allowed_paths.append(real_path)
-            if abs_path != real_path:
-                allowed_paths.append(abs_path)
-            elif not is_link:
+            if abs_path != real_path or not is_link:
                 allowed_paths.append(abs_path)
 
     unique_paths = list(set(allowed_paths))
@@ -160,23 +167,23 @@ def load_credentials(filepath: str = "credentials.json"):
     """
     try:
         if os.path.exists(filepath):
-            with open(filepath, 'r') as file:
+            with open(filepath, "r") as file:
                 data = json.load(file)
 
             # Gradio expects auth to be a list of tuples:
             # [("user", "pass"), ...]
             return list(data.items())
         else:
-            print(f"Credentials file '{filepath}' not found. Skipping password protection.")
+            print(
+                f"Credentials file '{filepath}' not found. Skipping password protection."
+            )
             return None
     except Exception as e:
         print(f"Error reading credentials: {e}. Skipping password protection.")
         return None
 
 
-def build_launch_args(
-    listen: bool, autostart: bool, credentials: bool
-) -> dict:
+def build_launch_args(listen: bool, autostart: bool, credentials: bool) -> dict:
 
     launch_args = {}
 
@@ -191,7 +198,9 @@ def build_launch_args(
             print(f"Secure mode enabled with {len(auth_data)} users.")
             launch_args["auth"] = auth_data
         else:
-            print("Secure mode requested but failed to load credentials. Launching without auth.")
+            print(
+                "Secure mode requested but failed to load credentials. Launching without auth."
+            )
 
     return launch_args
 
@@ -243,9 +252,9 @@ def restart_server():
     Restarts the sdcpp-webui.
     """
     print("\nRestarting server...")
-    os.environ['SDCPP_IS_RESTART'] = 'true'
+    os.environ["SDCPP_IS_RESTART"] = "true"
     python = sys.executable
-    new_args = [arg for arg in sys.argv if arg != '--autostart']
+    new_args = [arg for arg in sys.argv if arg != "--autostart"]
     os.execv(python, [python] + new_args)
 
 
@@ -255,9 +264,7 @@ def bind_ui_events(server: bool, tabs, gallery_tab, gallery_loaded_state):
     gallery_tab.select(
         fn=lazy_load_gallery,
         inputs=[gallery_loaded_state, def_page, txt2img_ctrl],
-        outputs=[
-            gallery, page_num_select, gallery_loaded_state
-        ]
+        outputs=[gallery, page_num_select, gallery_loaded_state],
     )
 
     t2i_params = txt2img_server_params if server else txt2img_params
@@ -271,44 +278,43 @@ def bind_ui_events(server: bool, tabs, gallery_tab, gallery_loaded_state):
     cpy_2_txt2img_btn.click(
         create_copy_fn("txt2img", FIELDS),
         inputs=common_inputs,
-        outputs=[tabs] + [t2i_params[f] for f in FIELDS]
+        outputs=[tabs] + [t2i_params[f] for f in FIELDS],
     )
     # Copy data from gallery image to img2img.
     cpy_2_img2img_btn.click(
-        create_copy_fn("img2img", FIELDS + ['input_image']),
+        create_copy_fn("img2img", FIELDS + ["input_image"]),
         inputs=common_inputs + [path_info],
-        outputs=[tabs] + [i2i_params[f] for f in FIELDS] + [i2i_inp]
+        outputs=[tabs] + [i2i_params[f] for f in FIELDS] + [i2i_inp],
     )
     # Copy data from gallery image to imgedit
     cpy_2_imgedit_btn.click(
         copy_to_imgedit,
-        inputs=[info_params['width'], info_params['height'], path_info],
-        outputs=[tabs, ie_width, ie_height, ie_ref]
+        inputs=[info_params["width"], info_params["height"], path_info],
+        outputs=[tabs, ie_width, ie_height, ie_ref],
     )
     if not server:
         # Copy data from gallery image to any2video.
         cpy_2_any2video_btn.click(
             create_copy_fn("any2video", FIELDS),
             inputs=common_inputs + [path_info],
-            outputs=[tabs] + [any2video_params[f] for f in FIELDS]
+            outputs=[tabs] + [any2video_params[f] for f in FIELDS],
         )
         cpy_2_upscale_btn.click(
             create_copy_fn("upscale"),
             inputs=[path_info],
-            outputs=[tabs, img_inp_upscale]
+            outputs=[tabs, img_inp_upscale],
         )
 
-    restart_btn.click(
-        fn=restart_server,
-        inputs=[],
-        outputs=[]
-    )
+    restart_btn.click(fn=restart_server, inputs=[], outputs=[])
 
 
 def sdcpp_launch(
-    server: bool = False, listen: bool = False,
-    autostart: bool = False, darkmode: bool = False,
-    credentials: bool = False, insecure_dir: bool = False
+    server: bool = False,
+    listen: bool = False,
+    autostart: bool = False,
+    darkmode: bool = False,
+    credentials: bool = False,
+    insecure_dir: bool = False,
 ):
     """Logic for launching sdcpp based on arguments"""
     launch_args = build_launch_args(listen, autostart, credentials)
@@ -319,10 +325,7 @@ def sdcpp_launch(
             config.data, os.path.abspath(os.getcwd())
         )
 
-    with gr.Blocks(
-        title="sd.cpp-webui"
-    ) as sdcpp:
-
+    with gr.Blocks(title="sd.cpp-webui") as sdcpp:
         gallery_loaded_state = gr.State(value=False)
 
         if server:
@@ -334,58 +337,52 @@ def sdcpp_launch(
 
     # Pass the arguments to sdcpp.launch with argument unpacking
     sdcpp.launch(
-        css="footer {visibility: hidden}",
-        theme="default", js=dark_js,
-        **launch_args
+        css="footer {visibility: hidden}", theme="default", js=dark_js, **launch_args
     )
 
 
 def main():
     """Main"""
-    if os.environ.get('SDCPP_IS_RESTART') == 'true':
-        print("\n" + "="*60)
+    if os.environ.get("SDCPP_IS_RESTART") == "true":
+        print("\n" + "=" * 60)
         print(" SERVER RESTARTED SUCCESSFULLY")
         print(" Please refresh your web browser to apply the changes.")
-        print("="*60 + "\n")
+        print("=" * 60 + "\n")
 
-        del os.environ['SDCPP_IS_RESTART']
+        del os.environ["SDCPP_IS_RESTART"]
 
-    parser = argparse.ArgumentParser(description='Process optional arguments')
+    parser = argparse.ArgumentParser(description="Process optional arguments")
     parser.add_argument(
-        '--server',
-        action='store_true',
-        help='Run stable-diffusion.cpp\'s server mode'
+        "--server", action="store_true", help="Run stable-diffusion.cpp's server mode"
+    )
+    parser.add_argument("--listen", action="store_true", help="Listen on 0.0.0.0")
+    parser.add_argument(
+        "--autostart",
+        action="store_true",
+        help="Automatically launch in a new browser tab",
     )
     parser.add_argument(
-        '--listen',
-        action='store_true',
-        help='Listen on 0.0.0.0'
+        "--darkmode", action="store_true", help="Enable dark mode for the web interface"
     )
     parser.add_argument(
-        '--autostart',
-        action='store_true',
-        help='Automatically launch in a new browser tab'
+        "--credentials",
+        action="store_true",
+        help="Enable password protection using credentials.json",
     )
     parser.add_argument(
-        '--darkmode',
-        action='store_true',
-        help='Enable dark mode for the web interface'
-    )
-    parser.add_argument(
-        '--credentials',
-        action='store_true',
-        help='Enable password protection using credentials.json'
-    )
-    parser.add_argument(
-        '--allow-insecure-dir',
-        action='store_true',
-        help='Allows the usage of external or linked directories based on config.json'
+        "--allow-insecure-dir",
+        action="store_true",
+        help="Allows the usage of external or linked directories based on config.json",
     )
     args = parser.parse_args()
 
     sdcpp_launch(
-        args.server, args.listen, args.autostart, args.darkmode,
-        args.credentials, args.allow_insecure_dir
+        args.server,
+        args.listen,
+        args.autostart,
+        args.darkmode,
+        args.credentials,
+        args.allow_insecure_dir,
     )
 
 

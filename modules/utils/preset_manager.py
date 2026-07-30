@@ -1,22 +1,20 @@
 """sd.cpp-webui - utils - preset management module"""
 
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .file_utils import load_json, save_json
 
-USER_PRESETS_PATH = os.path.join('user_data', 'presets.json')
-DEFAULT_PRESETS_PATH = os.path.join('defaults', 'default_presets.json')
+USER_PRESETS_PATH = os.path.join("user_data", "presets.json")
+DEFAULT_PRESETS_PATH = os.path.join("defaults", "default_presets.json")
 
 
 class PresetManager:
     """Handles loading, saving and managing user-defined generation presets."""
 
-    def __init__(
-            self, user_preset_path: str = None, default_preset_path: str = None
-    ):
+    def __init__(self, user_preset_path: str = None, default_preset_path: str = None):
         self.user_presets_path = os.getenv(
-            'SD_WEBUI_PRESETS_PATH', user_preset_path or USER_PRESETS_PATH
+            "SD_WEBUI_PRESETS_PATH", user_preset_path or USER_PRESETS_PATH
         )
         self.default_presets_path = default_preset_path or DEFAULT_PRESETS_PATH
 
@@ -40,7 +38,7 @@ class PresetManager:
         """Saves only the user presets dictionary to disk."""
         save_json(self.user_presets_path, self.user_presets)
 
-    def get_presets(self) -> List[str]:
+    def get_presets(self) -> list[str]:
         """Returns a sorted list of all preset names (defaults + user)."""
         all_keys = set(self.default_presets.keys()).union(set(self.user_presets.keys()))
         return sorted(list(all_keys))
@@ -53,7 +51,9 @@ class PresetManager:
 
         # Backend guardrail
         if self.is_default(name):
-            print(f"Warning: Attempted to overwrite default preset '{name}'. Blocked by backend.")
+            print(
+                f"Warning: Attempted to overwrite default preset '{name}'. Blocked by backend."
+            )
             return
 
         self.user_presets[name] = kwargs
@@ -63,14 +63,16 @@ class PresetManager:
         """Deletes a user preset. Blocks deleting defaults."""
         # Backend guardrail
         if self.is_default(name):
-            print(f"Warning: Attempted to delete default preset '{name}'. Blocked by backend.")
+            print(
+                f"Warning: Attempted to delete default preset '{name}'. Blocked by backend."
+            )
             return
 
         if name in self.user_presets:
             del self.user_presets[name]
             self.save_presets()
 
-    def get_preset(self, name: str) -> Optional[Dict[str, Any]]:
+    def get_preset(self, name: str) -> dict[str, Any] | None:
         """Retrieves a preset, checking defaults first, then user presets."""
         if name in self.default_presets:
             return self.default_presets.get(name)

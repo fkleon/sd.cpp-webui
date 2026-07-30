@@ -3,40 +3,40 @@
 import gradio as gr
 
 from modules.core.cli.sdcpp_cli import txt2img
-from modules.utils.ui_events import (
-    get_ordered_inputs, bind_generation_pipeline,
-    unet_tab_switch, ckpt_tab_switch,
-    refresh_all_options
-)
 from modules.shared_instance import subprocess_manager
-from modules.ui.models import create_img_model_sel_ui
-from modules.ui.loras import (
-    create_lora_sel_ui, bind_lora_events
-)
-from modules.ui.prompts import create_prompts_ui
-from modules.ui.presets import (
-    create_presets_ui, bind_presets_events
-)
-from modules.ui.generation_settings import (
-    create_quant_ui, create_generation_settings_ui,
-    create_bottom_generation_settings_ui
-)
-from modules.ui.upscale import create_upscl_ui
-from modules.ui.controlnet import create_cnnet_ui
-from modules.ui.slg import create_slg_ui
-from modules.ui.chroma import create_chroma_ui
-from modules.ui.qwen import create_qwen_ui
-from modules.ui.circular import create_circular_ui
-from modules.ui.photomaker import create_photomaker_ui
-from modules.ui.timestep_shift import create_timestep_shift_ui
-from modules.ui.eta import create_eta_ui
-from modules.ui.taesd import create_taesd_ui
-from modules.ui.vae_tiling import create_vae_tiling_ui
 from modules.ui.cache import create_cache_ui
-from modules.ui.extra import create_extras_ui
-from modules.ui.preview import create_preview_ui
-from modules.ui.performance import create_performance_ui
+from modules.ui.chroma import create_chroma_ui
+from modules.ui.circular import create_circular_ui
+from modules.ui.controlnet import create_cnnet_ui
 from modules.ui.environment import create_env_ui
+from modules.ui.eta import create_eta_ui
+from modules.ui.extra import create_extras_ui
+from modules.ui.generation_settings import (
+    create_bottom_generation_settings_ui,
+    create_generation_settings_ui,
+    create_quant_ui,
+)
+from modules.ui.loras import bind_lora_events, create_lora_sel_ui
+from modules.ui.models import create_img_model_sel_ui
+from modules.ui.performance import create_performance_ui
+from modules.ui.photomaker import create_photomaker_ui
+from modules.ui.presets import bind_presets_events, create_presets_ui
+from modules.ui.preview import create_preview_ui
+from modules.ui.prompts import create_prompts_ui
+from modules.ui.qwen import create_qwen_ui
+from modules.ui.slg import create_slg_ui
+from modules.ui.taesd import create_taesd_ui
+from modules.ui.timestep_shift import create_timestep_shift_ui
+from modules.ui.upscale import create_upscl_ui
+from modules.ui.vae_tiling import create_vae_tiling_ui
+from modules.utils.ui_events import (
+    bind_generation_pipeline,
+    ckpt_tab_switch,
+    get_ordered_inputs,
+    refresh_all_options,
+    unet_tab_switch,
+)
+
 # from modules.ui.experimental import create_experimental_ui
 
 
@@ -48,12 +48,10 @@ with gr.Blocks() as txt2img_block:
     # Title
     txt2img_title = gr.Markdown("# Text to Image")
 
-    with gr.Accordion(
-        label="Models selection", open=False
-    ):
+    with gr.Accordion(label="Models selection", open=False):
         # Model & VAE Selection
         model_ui = create_img_model_sel_ui()
-        inputs_map.update(model_ui['inputs'])
+        inputs_map.update(model_ui["inputs"])
 
         # Model Type Selection
         quant_ui = create_quant_ui()
@@ -70,11 +68,9 @@ with gr.Blocks() as txt2img_block:
     # Settings
     with gr.Row():
         with gr.Column(scale=1):
-
             presets_ui = create_presets_ui()
 
             with gr.Tab("Generation Settings"):
-
                 generation_settings_ui = create_generation_settings_ui()
                 inputs_map.update(generation_settings_ui)
 
@@ -82,7 +78,6 @@ with gr.Blocks() as txt2img_block:
                 inputs_map.update(bottom_generation_settings_ui)
 
             with gr.Tab("Image Enhancement"):
-
                 # Upscale
                 upscl_ui = create_upscl_ui()
                 inputs_map.update(upscl_ui)
@@ -120,7 +115,6 @@ with gr.Blocks() as txt2img_block:
                 inputs_map.update(eta_ui)
 
             with gr.Tab("Advanced Settings"):
-
                 # TAESD
                 taesd_ui = create_taesd_ui()
                 inputs_map.update(taesd_ui)
@@ -154,66 +148,49 @@ with gr.Blocks() as txt2img_block:
             # inputs_map.update(experimental_ui)
 
             with gr.Row():
-                refresh_opt = gr.Button(
-                    value="Refresh sd options"
-                )
+                refresh_opt = gr.Button(value="Refresh sd options")
 
         # Output
-        with gr.Column(scale=1):
-            with gr.Group():
-                with gr.Row():
-                    gen_btn = gr.Button(
-                        value="Generate", size="lg",
-                        variant="primary"
-                    )
-                    kill_btn = gr.Button(
-                        value="Stop", size="lg",
-                        variant="stop"
-                    )
-                with gr.Row():
-                    queue_tracker = gr.Textbox(
-                        show_label=False,
-                        visible=False
-                    )
-                with gr.Row():
-                    progress_slider = gr.Slider(
-                        minimum=0,
-                        maximum=100,
-                        value=0,
-                        interactive=False,
-                        visible=False,
-                        label="Progress",
-                    )
-                with gr.Row():
-                    progress_textbox = gr.Textbox(
-                        label="Status:",
-                        visible=False,
-                        interactive=False
-                    )
-                with gr.Row():
-                    img_final = gr.Gallery(
-                        label="Generated images",
-                        show_label=False,
-                        columns=[3],
-                        rows=[1],
-                        object_fit="contain",
-                        height="auto"
-                    )
-                with gr.Row():
-                    stats = gr.Textbox(
-                        label="Statistics:",
-                        show_label=True,
-                        value="",
-                        interactive=False
-                    )
-                with gr.Row():
-                    command = gr.Textbox(
-                        label="stable-diffusion.cpp command:",
-                        show_label=True,
-                        value="",
-                        interactive=False,
-                        buttons=['copy'],
-                    )
+        with gr.Column(scale=1), gr.Group():
+            with gr.Row():
+                gen_btn = gr.Button(value="Generate", size="lg", variant="primary")
+                kill_btn = gr.Button(value="Stop", size="lg", variant="stop")
+            with gr.Row():
+                queue_tracker = gr.Textbox(show_label=False, visible=False)
+            with gr.Row():
+                progress_slider = gr.Slider(
+                    minimum=0,
+                    maximum=100,
+                    value=0,
+                    interactive=False,
+                    visible=False,
+                    label="Progress",
+                )
+            with gr.Row():
+                progress_textbox = gr.Textbox(
+                    label="Status:", visible=False, interactive=False
+                )
+            with gr.Row():
+                img_final = gr.Gallery(
+                    label="Generated images",
+                    show_label=False,
+                    columns=[3],
+                    rows=[1],
+                    object_fit="contain",
+                    height="auto",
+                )
+            with gr.Row():
+                stats = gr.Textbox(
+                    label="Statistics:", show_label=True, value="", interactive=False
+                )
+            with gr.Row():
+                command = gr.Textbox(
+                    label="stable-diffusion.cpp command:",
+                    show_label=True,
+                    value="",
+                    interactive=False,
+                    buttons=["copy"],
+                )
 
     ordered_keys, ordered_components = get_ordered_inputs(inputs_map)
 
@@ -222,32 +199,28 @@ with gr.Blocks() as txt2img_block:
     is_loading_preset = gr.State(value=False)
 
     bind_presets_events(
-        presets_ui, generation_settings_ui, model_ui['inputs'],
-        preset_flag=is_loading_preset
+        presets_ui,
+        generation_settings_ui,
+        model_ui["inputs"],
+        preset_flag=is_loading_preset,
     )
 
     timer = gr.Timer(value=0.1, active=False)
 
     ui_outputs = {
-        'gen_btn': gen_btn,
-        'timer': timer,
-        'command': command,
-        'progress_slider': progress_slider,
-        'progress_textbox': progress_textbox,
-        'stats': stats,
-        'img_final': img_final,
-        'queue_tracker': queue_tracker
+        "gen_btn": gen_btn,
+        "timer": timer,
+        "command": command,
+        "progress_slider": progress_slider,
+        "progress_textbox": progress_textbox,
+        "stats": stats,
+        "img_final": img_final,
+        "queue_tracker": queue_tracker,
     }
 
-    bind_generation_pipeline(
-        txt2img, ordered_keys, ordered_components, ui_outputs
-    )
+    bind_generation_pipeline(txt2img, ordered_keys, ordered_components, ui_outputs)
 
-    kill_btn.click(
-        subprocess_manager.kill_subprocess,
-        inputs=[],
-        outputs=[]
-    )
+    kill_btn.click(subprocess_manager.kill_subprocess, inputs=[], outputs=[])
 
     # Interactive Bindings
     def safe_ckpt_tab_switch(is_loading):
@@ -260,64 +233,65 @@ with gr.Blocks() as txt2img_block:
             return [gr.skip()] * 13 + [False]
         return list(unet_tab_switch()) + [False]
 
-    model_ui['components']['ckpt_tab'].select(
+    model_ui["components"]["ckpt_tab"].select(
         safe_ckpt_tab_switch,
         inputs=[is_loading_preset],
         outputs=[
-            model_ui['inputs']['in_diffusion_mode'],
-            model_ui['inputs']['in_ckpt_model'],
-            model_ui['inputs']['in_unet_model'],
-            model_ui['inputs']['in_ckpt_vae'],
-            model_ui['inputs']['in_unet_vae'],
-            model_ui['inputs']['in_clip_g'],
-            model_ui['inputs']['in_clip_l'],
-            model_ui['inputs']['in_t5xxl'],
-            model_ui['inputs']['in_llm'],
-            generation_settings_ui['in_guidance_bool'],
-            generation_settings_ui['in_guidance'],
-            generation_settings_ui['in_flow_shift_bool'],
-            generation_settings_ui['in_flow_shift'],
-            is_loading_preset
-        ]
+            model_ui["inputs"]["in_diffusion_mode"],
+            model_ui["inputs"]["in_ckpt_model"],
+            model_ui["inputs"]["in_unet_model"],
+            model_ui["inputs"]["in_ckpt_vae"],
+            model_ui["inputs"]["in_unet_vae"],
+            model_ui["inputs"]["in_clip_g"],
+            model_ui["inputs"]["in_clip_l"],
+            model_ui["inputs"]["in_t5xxl"],
+            model_ui["inputs"]["in_llm"],
+            generation_settings_ui["in_guidance_bool"],
+            generation_settings_ui["in_guidance"],
+            generation_settings_ui["in_flow_shift_bool"],
+            generation_settings_ui["in_flow_shift"],
+            is_loading_preset,
+        ],
     )
 
-    model_ui['components']['unet_tab'].select(
+    model_ui["components"]["unet_tab"].select(
         safe_unet_tab_switch,
         inputs=[is_loading_preset],
         outputs=[
-            model_ui['inputs']['in_diffusion_mode'],
-            model_ui['inputs']['in_ckpt_model'],
-            model_ui['inputs']['in_unet_model'],
-            model_ui['inputs']['in_ckpt_vae'],
-            model_ui['inputs']['in_unet_vae'],
-            model_ui['inputs']['in_clip_g'],
-            model_ui['inputs']['in_clip_l'],
-            model_ui['inputs']['in_t5xxl'],
-            model_ui['inputs']['in_llm'],
-            generation_settings_ui['in_guidance_bool'],
-            generation_settings_ui['in_guidance'],
-            generation_settings_ui['in_flow_shift_bool'],
-            generation_settings_ui['in_flow_shift'],
-            is_loading_preset
-        ]
+            model_ui["inputs"]["in_diffusion_mode"],
+            model_ui["inputs"]["in_ckpt_model"],
+            model_ui["inputs"]["in_unet_model"],
+            model_ui["inputs"]["in_ckpt_vae"],
+            model_ui["inputs"]["in_unet_vae"],
+            model_ui["inputs"]["in_clip_g"],
+            model_ui["inputs"]["in_clip_l"],
+            model_ui["inputs"]["in_t5xxl"],
+            model_ui["inputs"]["in_llm"],
+            generation_settings_ui["in_guidance_bool"],
+            generation_settings_ui["in_guidance"],
+            generation_settings_ui["in_flow_shift_bool"],
+            generation_settings_ui["in_flow_shift"],
+            is_loading_preset,
+        ],
     )
 
     refresh_opt.click(
         refresh_all_options,
         inputs=[],
         outputs=[
-            generation_settings_ui['in_sampling'],
-            generation_settings_ui['in_scheduler'],
-            preview_ui['in_preview_mode'], extras_ui['in_predict']
-        ]
+            generation_settings_ui["in_sampling"],
+            generation_settings_ui["in_scheduler"],
+            preview_ui["in_preview_mode"],
+            extras_ui["in_predict"],
+        ],
     )
 
-    txt2img_params['pprompt'] = prompts_ui['in_pprompt']
-    txt2img_params['nprompt'] = prompts_ui['in_nprompt']
-    txt2img_params['width'] = generation_settings_ui['in_width']
-    txt2img_params['height'] = generation_settings_ui['in_height']
-    txt2img_params['steps'] = generation_settings_ui['in_steps']
-    txt2img_params['sampling'] = generation_settings_ui['in_sampling']
-    txt2img_params['scheduler'] = generation_settings_ui['in_scheduler']
-    txt2img_params['cfg'] = generation_settings_ui['in_cfg']
-    txt2img_params['seed'] = inputs_map['in_seed']
+    txt2img_params["pprompt"] = prompts_ui["in_pprompt"]
+    txt2img_params["nprompt"] = prompts_ui["in_nprompt"]
+    txt2img_params["width"] = generation_settings_ui["in_width"]
+    txt2img_params["height"] = generation_settings_ui["in_height"]
+    txt2img_params["steps"] = generation_settings_ui["in_steps"]
+    txt2img_params["sampling"] = generation_settings_ui["in_sampling"]
+    txt2img_params["scheduler"] = generation_settings_ui["in_scheduler"]
+    txt2img_params["cfg"] = generation_settings_ui["in_cfg"]
+    txt2img_params["seed"] = inputs_map["in_seed"]

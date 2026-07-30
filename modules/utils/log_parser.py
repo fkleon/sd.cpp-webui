@@ -12,8 +12,8 @@ class LogParser:
     def __init__(self):
         self.STATS_REGEX = re.compile(r"completed, taking ([\d.]+)s")
         self.TOTAL_TIME_REGEX = re.compile(r"completed in ([\d.]+)s")
-        self.ETA_REGEX = re.compile(r'(\d+)/(\d+)\s*-\s*([\d.]+)(s/it|it/s)')
-        self.SIMPLE_REGEX = re.compile(r'(\d+)/(\d+)')
+        self.ETA_REGEX = re.compile(r"(\d+)/(\d+)\s*-\s*([\d.]+)(s/it|it/s)")
+        self.SIMPLE_REGEX = re.compile(r"(\d+)/(\d+)")
         self.SEED_REGEX = re.compile(r"generating image:.*?seed\s+(\d+)")
 
     def _is_progress_line(self, line, phase):
@@ -21,47 +21,45 @@ class LogParser:
         Checks if a line is a progress bar line.
         """
         return (
-            phase in ["Loading Model", "Sampling", "Upscaling"] and
-            "|" in line and
-            "/" in line
+            phase in ["Loading Model", "Sampling", "Upscaling"]
+            and "|" in line
+            and "/" in line
         )
 
     def _parse_final_stats(self, line, final_stats):
         """
         Parses a line for final summary stats and updates the stats dictionary.
         """
-        if 'loading tensors completed' in line:
+        if "loading tensors completed" in line:
             match = self.STATS_REGEX.search(line)
             if match:
-                final_stats['tensor_load_time'] = f"{match.group(1)}s"
-        elif 'sampling completed' in line:
+                final_stats["tensor_load_time"] = f"{match.group(1)}s"
+        elif "sampling completed" in line:
             match = self.STATS_REGEX.search(line)
             if match:
-                final_stats['sampling_time'] = f"{match.group(1)}s"
-        elif 'decode_first_stage completed' in line:
+                final_stats["sampling_time"] = f"{match.group(1)}s"
+        elif "decode_first_stage completed" in line:
             match = self.STATS_REGEX.search(line)
             if match:
-                final_stats['decoding_time'] = f"{match.group(1)}s"
-        elif 'generate_image completed' in line:
+                final_stats["decoding_time"] = f"{match.group(1)}s"
+        elif "generate_image completed" in line:
             match = self.TOTAL_TIME_REGEX.search(line)
             if match:
-                final_stats['total_time'] = f"{match.group(1)}s"
+                final_stats["total_time"] = f"{match.group(1)}s"
 
-        elif 'seed' in line and 'generating image:' in line:
+        elif "seed" in line and "generating image:" in line:
             match = self.SEED_REGEX.search(line)
             if match:
                 from modules.shared_instance import server_state
+
                 server_state.seed = int(match.group(1))
 
     def _parse_progress_update(self, line, final_stats):
         """Parses a progress bar line and returns a dictionary for the UI."""
         eta_match = self.ETA_REGEX.search(line)
         if eta_match:
-            (current_step, total_steps,
-             speed_value, speed_unit) = eta_match.groups()
-            final_stats['last_speed'] = (
-                    f"{float(speed_value):.2f} {speed_unit}"
-            )
+            (current_step, total_steps, speed_value, speed_unit) = eta_match.groups()
+            final_stats["last_speed"] = f"{float(speed_value):.2f} {speed_unit}"
 
             current_step, total_steps = map(int, [current_step, total_steps])
             speed_value = float(speed_value)
@@ -70,9 +68,9 @@ class LogParser:
             steps_remaining = total_steps - current_step
             eta_seconds = 0
 
-            if speed_unit == 's/it':
+            if speed_unit == "s/it":
                 eta_seconds = int(steps_remaining * speed_value)
-            elif speed_unit == 'it/s' and speed_value > 0:
+            elif speed_unit == "it/s" and speed_value > 0:
                 eta_seconds = int(steps_remaining / speed_value)
 
             if eta_seconds < 60:
@@ -89,10 +87,7 @@ class LogParser:
 
             return {
                 "percent": int(phase_fraction * 100),
-                "status": (
-                    f"Speed: {final_stats['last_speed']} | "
-                    f"ETA: {eta_str}"
-                )
+                "status": (f"Speed: {final_stats['last_speed']} | ETA: {eta_str}"),
             }
 
         # Fallback for progress lines without ETA info
@@ -102,12 +97,11 @@ class LogParser:
             phase_fraction = current_step / total_steps
             return {
                 "percent": int(phase_fraction * 100),
-                "status": f"Step: {current_step}/{total_steps}"
+                "status": f"Step: {current_step}/{total_steps}",
             }
         return {}
 
-    def process_line(self, raw_line, clean_line, phase,
-                     final_stats, last_was_progress):
+    def process_line(self, raw_line, clean_line, phase, final_stats, last_was_progress):
         """
         Processes output with visual padding around progress bars.
         """
@@ -133,7 +127,7 @@ class LogParser:
                 sys.stdout.write("\n\n")
 
             print(display_line)
-            if 'generate_image completed' in clean_line:
+            if "generate_image completed" in clean_line:
                 return {"final_stats": dict(final_stats)}, False
             return None, False
 
@@ -144,10 +138,10 @@ class LogParser:
         Determines the current phase of
         the subprocess based on the output line.
         """
-        if 'loading model' in line or 'loading diffusion model' in line:
+        if "loading model" in line or "loading diffusion model" in line:
             return "Loading Model"
-        elif 'sampling using' in line:
+        elif "sampling using" in line:
             return "Sampling"
-        elif 'upscaling from' in line:
+        elif "upscaling from" in line:
             return "Upscaling"
         return None

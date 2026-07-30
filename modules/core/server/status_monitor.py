@@ -1,11 +1,10 @@
 """sd.cpp-webui - core - Server status monitor module"""
 
+import gradio as gr
 import httpx
 
-import gradio as gr
-
-from modules.shared_instance import server_state
 import modules.utils.queue as queue_manager
+from modules.shared_instance import server_state
 
 
 def get_server_status():
@@ -66,7 +65,7 @@ def server_status_monitor_wrapper(ip, port):
             "Stopped (No Model Loaded)",
             gr.update(interactive=False),
             gr.update(visible=False),
-            gr.update(visible=False)
+            gr.update(visible=False),
         )
     model_name = get_active_model_name(ip, port)
     is_loading_model = model_name in ["Loading weights...", "Checking status..."]
@@ -112,5 +111,5 @@ def server_status_monitor_wrapper(ip, port):
         combined_status,
         gr.update(interactive=btn_interactive),
         slider_update,
-        text_update
+        text_update,
     )

@@ -1,16 +1,12 @@
 """sd.cpp-webui - core - stable-diffusion.cpp server manager"""
 
 import threading
-from typing import Dict, Any
+from typing import Any
 
 import gradio as gr
 
-from modules.core.common.sd_common import (
-    CommonRunner
-)
-from modules.shared_instance import (
-    config, subprocess_manager, SD_SERVER, server_state
-)
+from modules.core.common.sd_common import CommonRunner
+from modules.shared_instance import SD_SERVER, config, server_state, subprocess_manager
 
 
 class ServerRunner(CommonRunner):
@@ -18,7 +14,7 @@ class ServerRunner(CommonRunner):
     Builds and manages the sd-server command execution.
     """
 
-    def __init__(self, params: Dict[str, Any]):
+    def __init__(self, params: dict[str, Any]):
         super().__init__(params)
         self.command = [SD_SERVER]
 
@@ -27,24 +23,30 @@ class ServerRunner(CommonRunner):
         self._resolve_paths()
 
         # Network settings
-        self.command.extend([
-            "--listen-ip", str(self._get_param('ip', '127.0.0.1')),
-            "--listen-port", str(self._get_param('port', 1234)),
-        ])
+        self.command.extend(
+            [
+                "--listen-ip",
+                str(self._get_param("ip", "127.0.0.1")),
+                "--listen-port",
+                str(self._get_param("port", 1234)),
+            ]
+        )
 
         options = self._get_common_model_options()
 
         # Additional Components
-        options.update({
-            '--threads': self._get_param('in_threads'),
-            '--cache-mode': self._get_param('in_cache_mode'),
-            '--taesd': self._get_param('f_taesd'),
-            '--photo-maker': self._get_param('f_phtmkr'),
-            '--upscale-model': self._get_param('f_upscl'),
-            '--control-net': self._get_param('f_cnnet'),
-            '--embd-dir': config.get('emb_dir'),
-            '--lora-model-dir': config.get('lora_dir'),
-        })
+        options.update(
+            {
+                "--threads": self._get_param("in_threads"),
+                "--cache-mode": self._get_param("in_cache_mode"),
+                "--taesd": self._get_param("f_taesd"),
+                "--photo-maker": self._get_param("f_phtmkr"),
+                "--upscale-model": self._get_param("f_upscl"),
+                "--control-net": self._get_param("f_cnnet"),
+                "--embd-dir": config.get("emb_dir"),
+                "--lora-model-dir": config.get("lora_dir"),
+            }
+        )
 
         self._add_options(options)
 
@@ -52,7 +54,7 @@ class ServerRunner(CommonRunner):
 
     def _prepare_for_run(self):
         """Prepares the final command string for printing."""
-        self.fcommand = ' '.join(map(str, self.command))
+        self.fcommand = " ".join(map(str, self.command))
 
     def run(self):
         """Starts the server thread and handles initial setup/logging."""
@@ -119,15 +121,7 @@ def stop_server():
         subprocess_manager.kill_subprocess()
         server_state.running = False
 
-        return (
-            "Stopped",
-            gr.update(active=False),
-            gr.update(interactive=False)
-        )
+        return ("Stopped", gr.update(active=False), gr.update(interactive=False))
 
     except Exception:
-        return (
-            "Error",
-            gr.update(active=False),
-            gr.update(interactive=False)
-        )
+        return ("Error", gr.update(active=False), gr.update(interactive=False))

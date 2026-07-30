@@ -1,14 +1,15 @@
 """sd.cpp-webui - core - stable-diffusion.cpp common"""
 
 import os
-from PIL import Image
 from enum import IntEnum
-from typing import Dict, Any
+from typing import Any
 
-from modules.utils.file_utils import get_path
-from modules.utils.sdcpp_utils import extract_env_vars
+from PIL import Image
+
 from modules.shared_instance import config
 from modules.ui.constants import CIRCULAR_PADDING
+from modules.utils.file_utils import get_path
+from modules.utils.sdcpp_utils import extract_env_vars
 
 
 def process_editor_mask(mask_input: Any) -> Image.Image | None:
@@ -55,12 +56,12 @@ class DiffusionMode(IntEnum):
     UNET = 1
 
 
-class CommonRunner():
+class CommonRunner:
     """
     Common class containing shared logic for CLI and server runners.
     """
 
-    def __init__(self, params: Dict[str, Any]):
+    def __init__(self, params: dict[str, Any]):
         self.params = params
         self.env_vars = extract_env_vars(self.params)
         self.command = []
@@ -77,17 +78,22 @@ class CommonRunner():
         Resolves all model and directory paths from the config.
         """
         path_mappings = {
-            'ckpt_dir': ['in_ckpt_model'],
-            'vae_dir': ['in_ckpt_vae', 'in_unet_vae', 'in_audio_vae'],
-            'unet_dir': ['in_unet_model', 'in_high_noise_model'],
-            'txt_enc_dir': [
-                'in_clip_g', 'in_clip_l', 'in_t5xxl', 'in_llm',
-                'in_umt5_xxl', 'in_clip_vision_h', 'in_emb_connect'
+            "ckpt_dir": ["in_ckpt_model"],
+            "vae_dir": ["in_ckpt_vae", "in_unet_vae", "in_audio_vae"],
+            "unet_dir": ["in_unet_model", "in_high_noise_model"],
+            "txt_enc_dir": [
+                "in_clip_g",
+                "in_clip_l",
+                "in_t5xxl",
+                "in_llm",
+                "in_umt5_xxl",
+                "in_clip_vision_h",
+                "in_emb_connect",
             ],
-            'taesd_dir': ['in_taesd'],
-            'phtmkr_dir': ['in_phtmkr'],
-            'upscl_dir': ['in_upscl'],
-            'cnnet_dir': ['in_cnnet']
+            "taesd_dir": ["in_taesd"],
+            "phtmkr_dir": ["in_phtmkr"],
+            "upscl_dir": ["in_upscl"],
+            "cnnet_dir": ["in_cnnet"],
         }
         for dir_key, param_keys in path_mappings.items():
             for param_key in param_keys:
@@ -98,7 +104,7 @@ class CommonRunner():
                         config.get(dir_key), self.params.get(param_key)
                     )
 
-    def _add_options(self, options: Dict[str, Any]):
+    def _add_options(self, options: dict[str, Any]):
         """
         Adds key-value options to the command if the value is not None.
         """
@@ -106,56 +112,60 @@ class CommonRunner():
             if val is not None:
                 self.command.extend([opt, str(val)])
 
-    def _add_flags(self, flags: Dict[str, bool]):
+    def _add_flags(self, flags: dict[str, bool]):
         """Adds boolean flags to the command if they are True."""
         for flag, condition in flags.items():
             if condition:
                 self.command.append(flag)
 
-    def _get_common_model_options(self) -> Dict[str, Any]:
+    def _get_common_model_options(self) -> dict[str, Any]:
         """
         Returns the base model options.
         """
         options = {}
-        diffusion_mode = self._get_param('in_diffusion_mode')
+        diffusion_mode = self._get_param("in_diffusion_mode")
 
         if diffusion_mode == DiffusionMode.CHECKPOINT:
-            options['--model'] = self._get_param('f_ckpt_model')
-            options['--vae'] = self._get_param('f_ckpt_vae')
+            options["--model"] = self._get_param("f_ckpt_model")
+            options["--vae"] = self._get_param("f_ckpt_vae")
         elif diffusion_mode == DiffusionMode.UNET:
-            options['--diffusion-model'] = self._get_param('f_unet_model')
-            options['--vae'] = self._get_param('f_unet_vae')
-            options['--clip_g'] = self._get_param('f_clip_g')
-            options['--clip_l'] = self._get_param('f_clip_l')
-            options['--t5xxl'] = self._get_param('f_t5xxl')
-            options['--llm'] = self._get_param('f_llm')
-            options['--llm_vision'] = self._get_param('f_llm_vision')
+            options["--diffusion-model"] = self._get_param("f_unet_model")
+            options["--vae"] = self._get_param("f_unet_vae")
+            options["--clip_g"] = self._get_param("f_clip_g")
+            options["--clip_l"] = self._get_param("f_clip_l")
+            options["--t5xxl"] = self._get_param("f_t5xxl")
+            options["--llm"] = self._get_param("f_llm")
+            options["--llm_vision"] = self._get_param("f_llm_vision")
 
         return {k: v for k, v in options.items() if v is not None}
 
-    def _get_common_flags(self) -> Dict[str, bool]:
+    def _get_common_flags(self) -> dict[str, bool]:
         """
         Returns the execution flags shared by almost all commands.
         """
         return {
-            '--stream-layers': self._get_param('in_stream_layers'),
-            '--eager-load': self._get_param('in_eager_load'),
-            '--vae-tiling': self._get_param('in_vae_tiling'),
-            '--canny': self._get_param('in_canny'),
-            '--chroma-disable-dit-mask': self._get_param('in_disable_dit_mask'),
-            '--chroma-enable-t5-mask': self._get_param('in_enable_t5_mask'),
-            '--qwen-image-zero-cond-t': self._get_param('in_enable_zero_cond_t'),
-            '--circular': self._get_param('in_circular_padding') == CIRCULAR_PADDING[1],
-            '--circularx': self._get_param('in_circular_padding') == CIRCULAR_PADDING[2],
-            '--circulary': self._get_param('in_circular_padding') == CIRCULAR_PADDING[3],
-            '--fa': self._get_param('in_flash_attn'),
-            '--diffusion-fa': self._get_param('in_diffusion_fa'),
-            '--diffusion-conv-direct': self._get_param('in_diffusion_conv_direct'),
-            '--vae-conv-direct': self._get_param('in_vae_conv_direct'),
-            '--force-sdxl-vae-conv-scale': self._get_param('in_force_sdxl_vae_conv_scale'),
-            '--mmap': self._get_param('in_mmap'),
-            '--color': self._get_param('in_color'),
-            '-v': self._get_param('in_verbose')
+            "--stream-layers": self._get_param("in_stream_layers"),
+            "--eager-load": self._get_param("in_eager_load"),
+            "--vae-tiling": self._get_param("in_vae_tiling"),
+            "--canny": self._get_param("in_canny"),
+            "--chroma-disable-dit-mask": self._get_param("in_disable_dit_mask"),
+            "--chroma-enable-t5-mask": self._get_param("in_enable_t5_mask"),
+            "--qwen-image-zero-cond-t": self._get_param("in_enable_zero_cond_t"),
+            "--circular": self._get_param("in_circular_padding") == CIRCULAR_PADDING[1],
+            "--circularx": self._get_param("in_circular_padding")
+            == CIRCULAR_PADDING[2],
+            "--circulary": self._get_param("in_circular_padding")
+            == CIRCULAR_PADDING[3],
+            "--fa": self._get_param("in_flash_attn"),
+            "--diffusion-fa": self._get_param("in_diffusion_fa"),
+            "--diffusion-conv-direct": self._get_param("in_diffusion_conv_direct"),
+            "--vae-conv-direct": self._get_param("in_vae_conv_direct"),
+            "--force-sdxl-vae-conv-scale": self._get_param(
+                "in_force_sdxl_vae_conv_scale"
+            ),
+            "--mmap": self._get_param("in_mmap"),
+            "--color": self._get_param("in_color"),
+            "-v": self._get_param("in_verbose"),
         }
 
     def _build_process_env(self) -> dict:
@@ -174,7 +184,7 @@ class CommonRunner():
                         settings_to_print.append(f"{key}=1")
                 elif isinstance(value, int):
                     process_env[key] = str(value)
-                    settings_to_print.append(f"{key}={str(value)}")
+                    settings_to_print.append(f"{key}={value!s}")
             if settings_to_print:
                 full_line = " ".join(settings_to_print)
                 print(f"  SET: {full_line}\n\n")

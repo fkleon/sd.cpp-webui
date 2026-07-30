@@ -9,13 +9,10 @@ from modules.utils.ui_events import update_interactivity
 
 def create_timestep_shift_ui():
     """Create timeshift step UI, for NitroFusion models"""
-    with gr.Accordion(
-        label="Timestep shift", open=False
-    ):
+    with gr.Accordion(label="Timestep shift", open=False):
         with gr.Row():
             timestep_shift_bool = gr.Checkbox(
-                label="Enable timestep shift",
-                value=False
+                label="Enable timestep shift", value=False
             )
         with gr.Row():
             timestep_shift = gr.Slider(
@@ -24,15 +21,15 @@ def create_timestep_shift_ui():
                 maximum=2000,
                 value=0,
                 step=1,
-                interactive=False
+                interactive=False,
             )
     timestep_shift_bool.change(
         partial(update_interactivity, 1),
         inputs=timestep_shift_bool,
-        outputs=timestep_shift
+        outputs=timestep_shift,
     )
 
     return {
-        'in_timestep_shift_bool': timestep_shift_bool,
-        'in_timestep_shift': timestep_shift
+        "in_timestep_shift_bool": timestep_shift_bool,
+        "in_timestep_shift": timestep_shift,
     }

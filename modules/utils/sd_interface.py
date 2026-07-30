@@ -1,10 +1,10 @@
 """sd.cpp-webui - Interface for the sdcpp executable"""
 
+import hashlib
+import json
 import os
 import re
-import json
 import shutil
-import hashlib
 import subprocess
 
 
@@ -40,7 +40,9 @@ def exe_name(mode="cli"):
             try:
                 subprocess.run(
                     [executable_path, "--version"],
-                    capture_output=True, text=True, check=True
+                    capture_output=True,
+                    text=True,
+                    check=True,
                 )
 
                 if is_local and os.name != "nt":
@@ -50,17 +52,12 @@ def exe_name(mode="cli"):
 
             except subprocess.CalledProcessError as e:
                 failed_candidates.append(
-                    (
-                     f"{executable_path} cannot be executed. " +
-                     f"Stdout: {e.stdout.strip()}. Stderr: {e.stderr.strip()}"
-                    )
+                    f"{executable_path} cannot be executed. "
+                    + f"Stdout: {e.stdout.strip()}. Stderr: {e.stderr.strip()}"
                 )
             except Exception as e:
                 failed_candidates.append(
-                    (
-                     f"{executable_path} cannot be executed. " +
-                     f"Exception: {str(e)}"
-                    )
+                    f"{executable_path} cannot be executed. " + f"Exception: {e!s}"
                 )
 
     # If any candidates were found but failed execution, warn about them
@@ -109,8 +106,15 @@ class SDOptionsCache:
         self.SCRIPT_PATH = os.path.abspath(__file__)
 
         self._CACHE_FILE = "options_cache.json"
-        self._OPTIONS = ["--sampling-method", "--scheduler", "--preview",
-                         "--type", "--prediction", "--rng", "--sampler-rng"]
+        self._OPTIONS = [
+            "--sampling-method",
+            "--scheduler",
+            "--preview",
+            "--type",
+            "--prediction",
+            "--rng",
+            "--sampler-rng",
+        ]
         self._help_cache = {}
 
         self._load_help_text_sync()
@@ -126,7 +130,7 @@ class SDOptionsCache:
                 for chunk in iter(lambda: f.read(8192), b""):
                     h.update(chunk)
             return h.hexdigest()
-        except (IOError, FileNotFoundError) as e:
+        except (OSError, FileNotFoundError) as e:
             print(f"Failed to hash file {path}: {e}")
             return None
 
@@ -139,31 +143,26 @@ class SDOptionsCache:
         help_cache = {}
         try:
             process = subprocess.run(
-                [self.SD_PATH, "--help"],
-                capture_output=True,
-                text=True,
-                check=False
+                [self.SD_PATH, "--help"], capture_output=True, text=True, check=False
             )
             help_text = process.stdout
 
             for option in self._OPTIONS:
                 match = re.search(
-                    fr"^\s*{re.escape(option)}\s.*?\[([^\]]+)\]",
+                    rf"^\s*{re.escape(option)}\s.*?\[([^\]]+)\]",
                     help_text,
-                    re.MULTILINE
+                    re.MULTILINE,
                 )
                 if match:
-                    values_str = match.group(1).replace('\n', ' ')
+                    values_str = match.group(1).replace("\n", " ")
                     help_cache[option] = [
-                        v.strip() for v in values_str.split(',') if v.strip()
+                        v.strip() for v in values_str.split(",") if v.strip()
                     ]
 
         except Exception as e:
             print(f"Failed to run SD --help command: {e}")
 
-        self._help_cache = {
-            opt: help_cache.get(opt, []) for opt in self._OPTIONS
-        }
+        self._help_cache = {opt: help_cache.get(opt, []) for opt in self._OPTIONS}
 
         sd_hash = self._hash_file(self.SD_PATH)
         script_hash = self._hash_file(self.SCRIPT_PATH)
@@ -174,19 +173,17 @@ class SDOptionsCache:
                     {
                         "sd_hash": sd_hash,
                         "script_hash": script_hash,
-                        "options": self._help_cache
-                    }, f, indent=2
+                        "options": self._help_cache,
+                    },
+                    f,
+                    indent=2,
                 )
-        except (IOError, TypeError, ValueError) as e:
+        except (OSError, TypeError, ValueError) as e:
             print(f"Failed to write to cache file: {e}")
 
     def _load_help_text_sync(self, force_refresh=False):
         """Synchronously load SD --help output and cache options to JSON."""
-        if (
-            force_refresh
-            or not self.SD_PATH
-            or not os.path.exists(self.SD_PATH)
-        ):
+        if force_refresh or not self.SD_PATH or not os.path.exists(self.SD_PATH):
             self._run_and_cache_help()
             return
 
@@ -199,16 +196,16 @@ class SDOptionsCache:
                 current_sd_hash = self._hash_file(self.SD_PATH)
                 current_script_hash = self._hash_file(self.SCRIPT_PATH)
 
-                if (data.get("sd_hash") == current_sd_hash and
-                        data.get("script_hash") == current_script_hash):
+                if (
+                    data.get("sd_hash") == current_sd_hash
+                    and data.get("script_hash") == current_script_hash
+                ):
                     self._help_cache = data.get("options", {})
                     if self._help_cache:
                         cache_valid = True
 
-            except (IOError, json.JSONDecodeError) as e:
-                print(
-                    f"Error reading cache file: {e}. Rebuilding cache."
-                )
+            except (OSError, json.JSONDecodeError) as e:
+                print(f"Error reading cache file: {e}. Rebuilding cache.")
 
         if not cache_valid:
             self._run_and_cache_help()
@@ -242,7 +239,7 @@ class SDOptionsCache:
             "previews": "--preview",
             "prediction": "--prediction",
             "rng": "--rng",
-            "sampler_rng": "--sampler-rng"
+            "sampler_rng": "--sampler-rng",
         }
         if option not in option_map:
             raise ValueError(
@@ -255,30 +252,45 @@ class SDOptionsCache:
         if not parsed_options:
             fallbacks = {
                 "samplers": [
-                    "euler", "euler_a", "heun", "dpm2", "dpm++2s_a",
-                    "dpm++2m", "dpm++2mv2", "ipndm", "ipndm_v", "lcm",
-                    "ddim_trailing", "tcd", "res_multistep", "res_2s"
+                    "euler",
+                    "euler_a",
+                    "heun",
+                    "dpm2",
+                    "dpm++2s_a",
+                    "dpm++2m",
+                    "dpm++2mv2",
+                    "ipndm",
+                    "ipndm_v",
+                    "lcm",
+                    "ddim_trailing",
+                    "tcd",
+                    "res_multistep",
+                    "res_2s",
                 ],
                 "schedulers": [
-                    "discrete", "karras", "exponential", "ays", "gits",
-                    "smoothstep", "sgm_uniform", "simple", "kl_optimal",
-                    "lcm", "bong_tangent"
+                    "discrete",
+                    "karras",
+                    "exponential",
+                    "ays",
+                    "gits",
+                    "smoothstep",
+                    "sgm_uniform",
+                    "simple",
+                    "kl_optimal",
+                    "lcm",
+                    "bong_tangent",
                 ],
-                "previews": [
-                    "none", "proj", "tae", "vae"
-                ],
+                "previews": ["none", "proj", "tae", "vae"],
                 "prediction": [
-                    "eps", "v", "edm_v", "sd3_flow", "flux_flow",
-                    "flux2_flow"
+                    "eps",
+                    "v",
+                    "edm_v",
+                    "sd3_flow",
+                    "flux_flow",
+                    "flux2_flow",
                 ],
-                "rng": [
-                    "std_default", "cuda", "cpu"
-                ],
-                "sampler_rng": [
-                    "std_default",
-                    "cuda",
-                    "cpu"
-                ],
+                "rng": ["std_default", "cuda", "cpu"],
+                "sampler_rng": ["std_default", "cuda", "cpu"],
             }
             return fallbacks.get(option, [])
 

@@ -24,22 +24,22 @@ class SubprocessManager:
         Generates raw strings from the subprocess stdout,
         breaking at line endings or progress updates."""
         buffer = bytearray()
-        for byte in iter(lambda: self.process.stdout.read(1), b''):
+        for byte in iter(lambda: self.process.stdout.read(1), b""):
             buffer.extend(byte)
 
-            is_line_end = byte in (b'\r', b'\n')
+            is_line_end = byte in (b"\r", b"\n")
             is_progress_end = (
-                    len(buffer) > 4 and
-                    byte in (b's', b't') and
-                    (buffer.endswith(b'it/s') or buffer.endswith(b's/it'))
+                len(buffer) > 4
+                and byte in (b"s", b"t")
+                and (buffer.endswith(b"it/s") or buffer.endswith(b"s/it"))
             )
 
             if is_line_end or is_progress_end:
-                yield buffer.decode('utf-8', errors='replace')
+                yield buffer.decode("utf-8", errors="replace")
                 buffer.clear()
 
         if buffer:
-            yield buffer.decode('utf-8', errors='replace')
+            yield buffer.decode("utf-8", errors="replace")
 
     def run_subprocess(self, command, env=None):
         """
@@ -49,21 +49,20 @@ class SubprocessManager:
         final_stats = {}
         last_was_progress = False
         last_processed_content = ""
-        ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+        ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
         try:
             with subprocess.Popen(
-                command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                bufsize=0, env=env
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                bufsize=0,
+                env=env,
             ) as self.process:
-
                 for raw_line in self._stream_output():
-                    clean_line = ansi_escape.sub('', raw_line)
+                    clean_line = ansi_escape.sub("", raw_line)
 
-                    if (
-                        clean_line == last_processed_content or
-                        not clean_line.strip()
-                    ):
+                    if clean_line == last_processed_content or not clean_line.strip():
                         continue
 
                     new_phase = self.parser.determine_phase(clean_line)
@@ -71,8 +70,7 @@ class SubprocessManager:
                         phase = new_phase
 
                     update_data, last_was_progress = self.parser.process_line(
-                        raw_line, clean_line, phase,
-                        final_stats, last_was_progress
+                        raw_line, clean_line, phase, final_stats, last_was_progress
                     )
                     last_processed_content = clean_line
 
