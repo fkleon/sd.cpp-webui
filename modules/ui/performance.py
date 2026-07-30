@@ -12,21 +12,26 @@ def create_performance_ui():
     with gr.Accordion(label="Performance", open=False):
         backend_table = gr.Dataframe(
             headers=["Component", "Device"],
-            datatype=["str", "str"],
+            datatype=("str", "str"),
             value=config.get("def_backend_table"),
             interactive=True,
-            row_count=(5, "dynamic"),
-            column_count=(2, "fixed"),
+            row_count=5,
+            # Deprecated tuple form kept intentionally: gradio 6.19's
+            # `column_limits` (the documented replacement) is a documented
+            # no-op ("not yet implemented"), while this legacy tuple is the
+            # only form that actually locks the column count in this
+            # version. Revisit once `column_limits` is implemented upstream.
+            column_count=(2, "fixed"),  # pyrefly: ignore
             label="Backend Configuration",
             type="array",
         )
         params_backend_table = gr.Dataframe(
             headers=["Component", "Device"],
-            datatype=["str", "str"],
+            datatype=("str", "str"),
             value=config.get("def_params_backend_table"),
             interactive=True,
-            row_count=(5, "dynamic"),
-            column_count=(2, "fixed"),
+            row_count=5,
+            column_count=(2, "fixed"),  # pyrefly: ignore
             label="Parameters Backend Configuration",
             type="array",
         )
